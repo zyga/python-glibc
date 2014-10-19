@@ -2,14 +2,14 @@
 Pure-Python bindings to glibc (based on ctypes)
 ===============================================
 
-.. image:: https://badge.fury.io/py/python-glibc.png
-    :target: http://badge.fury.io/py/python-glibc
+.. image:: https://badge.fury.io/py/glibc.png
+    :target: http://badge.fury.io/py/glibc
 
 .. image:: https://travis-ci.org/zyga/python-glibc.png?branch=master
         :target: https://travis-ci.org/zyga/python-glibc
 
-.. image:: https://pypip.in/d/python-glibc/badge.png
-        :target: https://pypi.python.org/pypi/python-glibc
+.. image:: https://pypip.in/d/glibc/badge.png
+        :target: https://pypi.python.org/pypi/glibc
 
 Features
 ========
