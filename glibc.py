@@ -225,6 +225,12 @@ _glibc_types = ((
 
 
 def _glibc_type(doc, kind, name, size, fields):
+    _globals = {'ctypes': ctypes, 'glibc': _mod}
+    fields = tuple([
+        (field_name, (eval(field_type, _globals)
+                      if isinstance(field_type, str) else field_type))
+        for field_name, field_type in fields
+    ])
     if kind == 'struct':
         new_type = type(name, (ctypes.Structure, ), {
             '__doc__': doc,
