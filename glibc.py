@@ -286,6 +286,8 @@ del _glibc_types
 # Lazily define all supported glibc constants
 _glibc_constants = (
     ('SIG_BLOCK', c_int(0), ('signal.h',)),
+    ('SIG_UNBLOCK', c_int(1), ('signal.h',)),
+    ('SIG_SETMASK', c_int(2), ('signal.h',)),
     ('SFD_CLOEXEC',  c_int(0o2000000), ()),
     ('SFD_NONBLOCK', c_int(0o0004000), ()),
     ('EPOLL_CLOEXEC', c_int(0o2000000), ()),
