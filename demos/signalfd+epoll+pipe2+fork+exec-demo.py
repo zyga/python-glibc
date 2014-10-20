@@ -7,9 +7,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from ctypes import c_int, c_uint32, byref, cast, POINTER
-from os import (fdopen, close, fork, execlp, read, waitid, WIFEXITED,
-                WEXITSTATUS, WIFSIGNALED, WCOREDUMP, WNOHANG, WCONTINUED,
-                WEXITED, WSTOPPED, WUNTRACED, P_PID)
+from os import (fdopen, close, fork, execlp, read, waitid, WEXITSTATUS,
+                WIFSIGNALED, WCOREDUMP, WNOHANG, WCONTINUED, WEXITED, WSTOPPED,
+                WUNTRACED, P_PID)
 from signal import SIGINT, SIGQUIT, SIGCHLD, SIGPIPE
 from sys import argv
 
@@ -151,11 +151,21 @@ def main():
                                 print("si_status:", waitid_result.si_status)
                                 print("si_code:", waitid_result.si_code)
                                 if waitid_result.si_code == CLD_EXITED:
-                                    assert WIFEXITED(waitid_result.si_status)
+                                    # assert WIFEXITED(waitid_result.si_status)
                                     print("child exited normally")
                                     print("exit code:",
                                           WEXITSTATUS(waitid_result.si_status))
                                     waiting_for.remove('proc')
+                                    if 'stdout' in waiting_for:
+                                        epoll_ctl(epollfd, EPOLL_CTL_DEL,
+                                                  stdout_pipe_fd, None)
+                                        close(stdout_pipe_fd)
+                                        waiting_for.remove('stdout')
+                                    if 'stderr' in waiting_for:
+                                        epoll_ctl(epollfd, EPOLL_CTL_DEL,
+                                                  stderr_pipe_fd, None)
+                                        close(stderr_pipe_fd)
+                                        waiting_for.remove('stderr')
                                 elif waitid_result.si_code == CLD_KILLED:
                                     assert WIFSIGNALED(waitid_result.si_status)
                                     print("child was killed by signal")
