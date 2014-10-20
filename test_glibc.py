@@ -26,12 +26,8 @@ import subprocess
 import sys
 import types
 
-if sys.version_info[0] == 2:
-    import unittest_ext as unittest
-    import tempfile_ext as tempfile
-else:
-    import unittest
-    import tempfile
+import unittest_ext as unittest
+import tempfile_ext as tempfile
 
 
 class GlibcTests(unittest.TestCase):

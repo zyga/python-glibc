@@ -175,7 +175,10 @@ import errno as _errno
 from random import Random as _Random
 import weakref_ext as _weakref
 
-import thread as _thread
+try:
+    import _thread
+except ImportError:
+    import thread as _thread
 _allocate_lock = _thread.allocate_lock
 
 _text_openflags = _os.O_RDWR | _os.O_CREAT | _os.O_EXCL
