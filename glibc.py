@@ -93,8 +93,8 @@ class LazyModule(types.ModuleType):
             data = super(LazyModule, self).__dir__()
         else:
             data = self.__dict__.keys()
-        data.extend(self._all)
-        return data
+        data = set(data) | self._all
+        return sorted(data)
 
     def __getattr__(self, name):
         """
