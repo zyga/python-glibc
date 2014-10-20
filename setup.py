@@ -23,7 +23,7 @@ except ImportError:
 
 setup(
     name="glibc",
-    version="0.2",
+    version="0.3",
     url="https://github.com/zyga/python-glibc/",
     py_modules=['glibc'],
     author="Zygmunt Krynicki",
