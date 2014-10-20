@@ -285,31 +285,31 @@ del _glibc_types
 
 # Lazily define all supported glibc constants
 _glibc_constants = (
-    ('SIG_BLOCK', c_int(0)),
-    ('SFD_CLOEXEC',  c_int(0o2000000)),
-    ('SFD_NONBLOCK', c_int(0o0004000)),
-    ('EPOLL_CLOEXEC', c_int(0o2000000)),
-    ('EPOLL_CTL_ADD', c_int(1)),
-    ('EPOLL_CTL_DEL', c_int(2)),
-    ('EPOLL_CTL_MOD', c_int(3)),
-    ('EPOLLIN',    c_int(0x0001)),
-    ('EPOLLOUT',   c_int(0x0004)),
-    ('EPOLLRDHUP', c_int(0x2000)),
-    ('EPOLLPRI',   c_int(0x002)),
-    ('EPOLLERR',   c_int(0x008)),
-    ('EPOLLHUP',   c_int(0x010)),
-    ('EPOLLET',    c_uint(1 << 31)),
-    ('EPOLLONESHOT', c_uint(1 << 30)),
-    ('O_CLOEXEC',  c_int(0o2000000)),
-    ('O_DIRECT',   c_int(0o0040000)),
-    ('O_NONBLOCK', c_int(0o00004000)),
+    ('SIG_BLOCK', c_int(0), ('signal.h',)),
+    ('SFD_CLOEXEC',  c_int(0o2000000), ()),
+    ('SFD_NONBLOCK', c_int(0o0004000), ()),
+    ('EPOLL_CLOEXEC', c_int(0o2000000), ()),
+    ('EPOLL_CTL_ADD', c_int(1), ()),
+    ('EPOLL_CTL_DEL', c_int(2), ()),
+    ('EPOLL_CTL_MOD', c_int(3), ()),
+    ('EPOLLIN',    c_int(0x0001), ()),
+    ('EPOLLOUT',   c_int(0x0004), ()),
+    ('EPOLLRDHUP', c_int(0x2000), ()),
+    ('EPOLLPRI',   c_int(0x002), ()),
+    ('EPOLLERR',   c_int(0x008), ()),
+    ('EPOLLHUP',   c_int(0x010), ()),
+    ('EPOLLET',    c_uint(1 << 31), ()),
+    ('EPOLLONESHOT', c_uint(1 << 30), ()),
+    ('O_CLOEXEC',  c_int(0o2000000), ()),
+    ('O_DIRECT',   c_int(0o0040000), ()),
+    ('O_NONBLOCK', c_int(0o00004000), ()),
 )
 
 
 for info in _glibc_constants:
     _mod.immediate(info[0], info[1])
 del info
-del _glibc_constants
+# del _glibc_constants
 
 
 # Lazily define all supported glibc functions
