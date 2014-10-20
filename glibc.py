@@ -33,10 +33,12 @@ from __future__ import division
 
 from ctypes import c_int
 from ctypes import c_int32
+from ctypes import c_uint
 from ctypes import c_uint32
 from ctypes import c_uint64
 from ctypes import c_uint8
 from ctypes import c_ulong
+from ctypes import c_voidp
 from ctypes import get_errno
 import ctypes
 import ctypes.util
@@ -222,6 +224,30 @@ _glibc_types = (
          ('ssi_addr', c_uint64),
          ('pad', c_uint8 * 44),
      )),
+    ("""
+     typedef union epoll_data {
+         void    *ptr;
+         int      fd;
+         uint32_t u32;
+         uint64_t u64;
+     } epoll_data_t;
+     """,
+     'union', 'epoll_data_t', 8, (
+         ('ptr', c_voidp),
+         ('fd', c_int),
+         ('u32', c_uint32),
+         ('u64', c_uint64),
+     )),
+    ("""
+     struct epoll_event {
+         uint32_t     events;    /* Epoll events */
+         epoll_data_t data;      /* User data variable */
+     };
+     """,
+     'struct', 'epoll_event', 16, (
+         ('events', c_uint32),
+         ('data', 'glibc.epoll_data_t'),
+     )),
 )
 
 
@@ -261,6 +287,18 @@ _glibc_constants = (
     ('SIG_BLOCK', c_int(0)),
     ('SFD_CLOEXEC', c_int(0o2000000)),
     ('SFD_NONBLOCK', c_int(0o0004000)),
+    ('EPOLL_CLOEXEC', c_int(0o2000000)),
+    ('EPOLL_CTL_ADD', c_int(1)),
+    ('EPOLL_CTL_DEL', c_int(2)),
+    ('EPOLL_CTL_MOD', c_int(3)),
+    ('EPOLLIN', c_int(0x0001)),
+    ('EPOLLOUT', c_int(0x0004)),
+    ('EPOLLRDHUP', c_int(0x2000)),
+    ('EPOLLPRI', c_int(0x002)),
+    ('EPOLLERR', c_int(0x008)),
+    ('EPOLLHUP', c_int(0x010)),
+    ('EPOLLET', c_uint(1 << 31)),
+    ('EPOLLONESHOT', c_uint(1 << 30)),
 )
 
 
@@ -319,6 +357,81 @@ _glibc_functions = (
          errno.ENODEV: ("Could not mount (internal) anonymous inode device"),
          errno.ENOMEM: ("There was insufficient memory to create a new"
                         " signalfd file descriptor")
+     }),
+    ('epoll_create', c_int, [c_int],
+     """int epoll_create(int size);""",
+     -1, {
+         errno.EINVAL: "size is not positive.",
+         errno.EMFILE: ("The per-user limit on the number of epoll instances"
+                        " imposed by /proc/sys/fs/epoll/max_user_instances was"
+                        " encountered.  See epoll(7) for further details."),
+         errno.ENFILE: ("The system limit on the total number of open files"
+                        " has been reached."),
+         errno.ENOMEM: ("There was insufficient memory to create the kernel"
+                        " object."),
+     }),
+    ('epoll_create1', c_int, [c_int],
+     """int epoll_create1(int flags);""",
+     -1, {
+         errno.EINVAL: "Invalid value specified in flags.",
+         errno.EMFILE: ("The per-user limit on the number of epoll instances"
+                        " imposed by /proc/sys/fs/epoll/max_user_instances was"
+                        " encountered.  See epoll(7) for further details."),
+         errno.ENFILE: ("The system limit on the total number of open files"
+                        " has been reached."),
+         errno.ENOMEM: ("There was insufficient memory to create the kernel"
+                        " object."),
+     }),
+    ('epoll_wait', c_int, [c_int, 'ctypes.POINTER(glibc.epoll_event)', c_int,
+                           c_int],
+     """int epoll_wait(int epfd, struct epoll_event *events,
+                       int maxevents, int timeout);""",
+     -1, {
+         errno.EBADF: "epfd is not a valid file descriptor.",
+         errno.EFAULT: ("The memory area pointed to by events is not"
+                        " accessible with write permissions."),
+         errno.EINTR: ("The call was interrupted by a signal handler before"
+                       " either (1) any of the requested events occurred"
+                       " or (2) the timeout expired; see signal(7)."),
+         errno.EINVAL: ("epfd is not an epoll file descriptor, or maxevents"
+                        " is less than or equal to zero."),
+     }),
+    ('epoll_pwait', c_int, [c_int, 'ctypes.POINTER(glibc.epoll_event)', c_int,
+                            c_int, 'ctypes.POINTER(glibc.sigset_t)'],
+     """int epoll_pwait(int epfd, struct epoll_event *events,
+                        int maxevents, int timeout,
+                        const sigset_t *sigmask);""",
+     -1, {
+         errno.EBADF: "epfd is not a valid file descriptor.",
+         errno.EFAULT: ("The memory area pointed to by events is not"
+                        " accessible with write permissions."),
+         errno.EINTR: ("The call was interrupted by a signal handler before"
+                       " either (1) any of the requested events occurred"
+                       " or (2) the timeout expired; see signal(7)."),
+         errno.EINVAL: ("epfd is not an epoll file descriptor, or maxevents"
+                        " is less than or equal to zero."),
+     }),
+    ('epoll_ctl', c_int, [c_int, c_int, c_int,
+                          'ctypes.POINTER(glibc.epoll_event)'],
+     "int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);",
+     -1, {
+         errno.EBADF: "epfd or fd is not a valid file descriptor.",
+         errno.EEXIST: ("op was EPOLL_CTL_ADD, and the supplied file"
+                        " descriptor fd is already registered with this"
+                        " epoll instance."),
+         errno.EINVAL: ("epfd is not an epoll file descriptor, or fd is the"
+                        " same as epfd, or the requested operation op is not"
+                        " supported by this interface."),
+         errno.ENOENT: ("op was EPOLL_CTL_MOD or EPOLL_CTL_DEL, and fd is not"
+                        " registered with this epoll instance."),
+         errno.ENOMEM: ("There was insufficient memory to handle the requested"
+                        " op control operation."),
+         errno.ENOSPC: ("The limit imposed by"
+                        " /proc/sys/fs/epoll/max_user_watches was encountered"
+                        " while trying to register (EPOLL_CTL_ADD) a new file"
+                        " descriptor on an epoll instance. See epoll(7) for"
+                        " further details."),
+         errno.EPERM: "The target file fd does not support epoll.",
      }),
 )
 
