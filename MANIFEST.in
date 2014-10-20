@@ -2,3 +2,6 @@ include COPYING
 include README.rst
 include demos/*.py
 include test_glibc.py
+include tempfile_ext.py
+include weakref_ext.py
+include unittest_ext/*.py
