@@ -236,6 +236,11 @@ def _glibc_type(doc, kind, name, size, fields):
             '__doc__': doc,
             '_fields_': fields,
         })
+    elif kind == 'union':
+        new_type = type(name, (ctypes.Union, ), {
+            '__doc__': doc,
+            '_fields_': fields,
+        })
     else:
         raise ValueError(kind)
     assert ctypes.sizeof(new_type) == size, \
