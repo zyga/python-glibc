@@ -28,7 +28,6 @@ setup(
     py_modules=['glibc'],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",
-    test_suite='test_glibc',
     license="LGPLv3",
     platforms=["Linux"],
     description="Pure-Python bindings to glibc (based on ctypes)",
