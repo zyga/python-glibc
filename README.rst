@@ -15,7 +15,12 @@ Features
 ========
 
 * Free software: LGPLv3 license
-* Supports ``signalfd(2)`` and the assorted set of signal related functions.
+* Supports ``dup(2)``, ``dup2(2)``, ``dup3(2)``, ``epoll_create(2)``,
+  ``epoll_create1(2)``, ``epoll_ctl(2)``, ``epoll_ctl(2)``, ``epoll_pwait(2)``,
+  ``epoll_wait(2)``, ``pipe(2)``, ``pipe2(2)``, ``sigaddset(3)``,
+  ``sigdelset(3)``, ``sigemptyset(3)``, ``sigfillset(3)``, ``sigismember(3)``,
+  ``signalfd(2)``, ``sigprocmask(2)`` and all the associated data types and
+  constants.
 * Supported on python 2.7+ and python 3.2+ and pypy
 * All other useful glibc features are in scope (patches welcome!)
 * ``from glibc import ...`` -- direct access to glibc functions and types via
