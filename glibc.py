@@ -305,6 +305,7 @@ _glibc_constants = (
     ('O_CLOEXEC',  c_int(0o2000000), ()),
     ('O_DIRECT',   c_int(0o0040000), ()),
     ('O_NONBLOCK', c_int(0o00004000), ()),
+    ('PIPE_BUF',   c_int(4096), ()),
 )
 
 
