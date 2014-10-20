@@ -87,7 +87,10 @@ class LazyModule(types.ModuleType):
         """
         Lazy-aware version of __dir__()
         """
-        data = object.__dir__(self)
+        if sys.version_info[0] == 3:
+            data = super(LazyModule, self).__dir__()
+        else:
+            data = self.__dict__.keys()
         data.extend(self._all)
         return data
 
