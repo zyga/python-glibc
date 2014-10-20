@@ -454,6 +454,40 @@ _glibc_functions = (
          errno.ENFILE: ("The system limit on the total number of open files"
                         " has been reached."),
      }),
+    ('dup', c_int, [c_int],
+     """int dup(int oldfd);""",
+     -1, {
+         errno.EBADF: ("oldfd isn't an open file descriptor, or newfd is out"
+                       " of the allowed range for file descriptors."),
+         errno.EMFILE: ("The process already has the maximum number of file"
+                        " descriptors open and tried to open a new one."),
+     }),
+    ('dup2', c_int, [c_int, c_int],
+     """int dup2(int oldfd, int newfd);""",
+     -1, {
+         errno.EBADF: ("oldfd isn't an open file descriptor, or newfd is out"
+                       " of the allowed range for file descriptors."),
+         errno.EBUSY: ("(Linux only) This may be returned by dup2() or dup3()"
+                       " during a race condition with open(2) and dup()."),
+         errno.EINTR: ("The dup2() or dup3() call was interrupted by a signal;"
+                       " see signal(7)."),
+         errno.EMFILE: ("The process already has the maximum number of file"
+                        " descriptors open and tried to open a new one."),
+     }),
+    ('dup3', c_int, [c_int, c_int, c_int],
+     """int dup3(int oldfd, int newfd, int flags);""",
+     -1, {
+         errno.EBADF: ("oldfd isn't an open file descriptor, or newfd is out"
+                       " of the allowed range for file descriptors."),
+         errno.EBUSY: ("(Linux only) This may be returned by dup2() or dup3()"
+                       " during a race condition with open(2) and dup()."),
+         errno.EINTR: ("The dup2() or dup3() call was interrupted by a signal;"
+                       " see signal(7)."),
+         errno.EINVAL: ("(dup3()) flags contain an invalid value.  Or, oldfd"
+                        " was equal to newfd."),
+         errno.EMFILE: ("The process already has the maximum number of file"
+                        " descriptors open and tried to open a new one."),
+     }),
 )
 
 
