@@ -244,7 +244,8 @@ def _glibc_type(doc, kind, name, size, fields):
     else:
         raise ValueError(kind)
     assert ctypes.sizeof(new_type) == size, \
-        "{} {} size mismatch".format(kind, name)
+        "{} {} size mismatch (got {}, expected {})".format(
+            kind, name, ctypes.sizeof(new_type), size)
     return new_type
 
 
