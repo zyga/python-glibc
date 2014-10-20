@@ -285,50 +285,50 @@ del _glibc_types
 
 # Lazily define all supported glibc constants
 _glibc_constants = (
-    ('SIG_BLOCK', c_int(0), ('#include <signal.h>',)),
-    ('SIG_UNBLOCK', c_int(1), ('#include <signal.h>',)),
-    ('SIG_SETMASK', c_int(2), ('#include <signal.h>',)),
-    ('CLD_EXITED', c_int(1), ('#include <signal.h>',)),
-    ('CLD_KILLED', c_int(2), ('#include <signal.h>',)),
-    ('CLD_DUMPED', c_int(3), ('#include <signal.h>',)),
-    ('CLD_TRAPPED', c_int(4), ('#include <signal.h>',)),
-    ('CLD_STOPPED', c_int(5), ('#include <signal.h>',)),
-    ('CLD_CONTINUED', c_int(6), ('#include <signal.h>',)),
-    ('SFD_CLOEXEC',  c_int(0o2000000), ('#include <sys/signalfd.h>',)),
-    ('SFD_NONBLOCK', c_int(0o0004000), ('#include <sys/signalfd.h>',)),
-    ('EPOLL_CLOEXEC', c_int(0o2000000), ('#include <sys/epoll.h>',)),
-    ('EPOLL_CTL_ADD', c_int(1), ('#include <sys/epoll.h>',)),
-    ('EPOLL_CTL_DEL', c_int(2), ('#include <sys/epoll.h>',)),
-    ('EPOLL_CTL_MOD', c_int(3), ('#include <sys/epoll.h>',)),
-    ('EPOLLIN',    c_uint(0x0001), ('#include <sys/epoll.h>',)),
-    ('EPOLLOUT',   c_uint(0x0004), ('#include <sys/epoll.h>',)),
-    ('EPOLLRDHUP', c_uint(0x2000), ('#include <sys/epoll.h>',)),
-    ('EPOLLPRI',   c_uint(0x002), ('#include <sys/epoll.h>',)),
-    ('EPOLLERR',   c_uint(0x008), ('#include <sys/epoll.h>',)),
-    ('EPOLLHUP',   c_uint(0x010), ('#include <sys/epoll.h>',)),
-    ('EPOLLET',    c_uint(1 << 31), ('#include <sys/epoll.h>',)),
-    ('EPOLLONESHOT', c_uint(1 << 30), ('#include <sys/epoll.h>',)),
-    ('O_CLOEXEC',  c_int(0o2000000), (
+    ('SIG_BLOCK',       c_int, 0, ('#include <signal.h>',)),
+    ('SIG_UNBLOCK',     c_int, 1, ('#include <signal.h>',)),
+    ('SIG_SETMASK',     c_int, 2, ('#include <signal.h>',)),
+    ('CLD_EXITED',      c_int, 1, ('#include <signal.h>',)),
+    ('CLD_KILLED',      c_int, 2, ('#include <signal.h>',)),
+    ('CLD_DUMPED',      c_int, 3, ('#include <signal.h>',)),
+    ('CLD_TRAPPED',     c_int, 4, ('#include <signal.h>',)),
+    ('CLD_STOPPED',     c_int, 5, ('#include <signal.h>',)),
+    ('CLD_CONTINUED',   c_int, 6, ('#include <signal.h>',)),
+    ('SFD_CLOEXEC',     c_int, 0o2000000, ('#include <sys/signalfd.h>',)),
+    ('SFD_NONBLOCK',    c_int, 0o0004000, ('#include <sys/signalfd.h>',)),
+    ('EPOLL_CLOEXEC',   c_int, 0o2000000, ('#include <sys/epoll.h>',)),
+    ('EPOLL_CTL_ADD',   c_int, 1, ('#include <sys/epoll.h>',)),
+    ('EPOLL_CTL_DEL',   c_int, 2, ('#include <sys/epoll.h>',)),
+    ('EPOLL_CTL_MOD',   c_int, 3, ('#include <sys/epoll.h>',)),
+    ('EPOLLIN',         c_uint, 0x0001, ('#include <sys/epoll.h>',)),
+    ('EPOLLOUT',        c_uint, 0x0004, ('#include <sys/epoll.h>',)),
+    ('EPOLLRDHUP',      c_uint, 0x2000, ('#include <sys/epoll.h>',)),
+    ('EPOLLPRI',        c_uint, 0x002, ('#include <sys/epoll.h>',)),
+    ('EPOLLERR',        c_uint, 0x008, ('#include <sys/epoll.h>',)),
+    ('EPOLLHUP',        c_uint, 0x010, ('#include <sys/epoll.h>',)),
+    ('EPOLLET',         c_uint, 1 << 31, ('#include <sys/epoll.h>',)),
+    ('EPOLLONESHOT',    c_uint, 1 << 30, ('#include <sys/epoll.h>',)),
+    ('O_CLOEXEC',       c_int, 0o2000000, (
         '#define _POSIX_C_SOURCE 200809L',
         '#include <sys/types.h>',
         '#include <sys/stat.h>',
         '#include <fcntl.h>')),
-    ('O_DIRECT',   c_int(0o0040000), (
+    ('O_DIRECT',        c_int, 0o0040000, (
         '#define _GNU_SOURCE',
         '#include <sys/types.h>',
         '#include <sys/stat.h>',
         '#include <fcntl.h>')),
-    ('O_NONBLOCK', c_int(0o00004000), (
+    ('O_NONBLOCK',      c_int, 0o00004000, (
         '#define _POSIX_C_SOURCE 200809L',
         '#include <sys/types.h>',
         '#include <sys/stat.h>',
         '#include <fcntl.h>')),
-    ('PIPE_BUF',   c_int(4096), ('#include <limits.h>',)),
+    ('PIPE_BUF',        c_int, 4096, ('#include <limits.h>',)),
 )
 
 
 for info in _glibc_constants:
-    _mod.immediate(info[0], info[1])
+    _mod.immediate(info[0], info[2])
 del info
 # del _glibc_constants
 
