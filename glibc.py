@@ -31,6 +31,7 @@ rest from python's stdlib (aka ``signal``, ``posix`` and ``os``).
 from __future__ import absolute_import
 from __future__ import division
 
+from ctypes import POINTER
 from ctypes import c_int
 from ctypes import c_int32
 from ctypes import c_uint
@@ -299,6 +300,9 @@ _glibc_constants = (
     ('EPOLLHUP', c_int(0x010)),
     ('EPOLLET', c_uint(1 << 31)),
     ('EPOLLONESHOT', c_uint(1 << 30)),
+    ('O_CLOEXEC',  c_int(0o2000000)),
+    ('O_DIRECT',   c_int(0o0040000)),
+    ('O_NONBLOCK', c_int(0o00004000)),
 )
 
 
@@ -432,6 +436,23 @@ _glibc_functions = (
                         " descriptor on an epoll instance. See epoll(7) for"
                         " further details."),
          errno.EPERM: "The target file fd does not support epoll.",
+     }),
+    ('pipe', c_int, [POINTER(c_int * 2)],
+     """int pipe2(int pipefd[2], int flags);""",
+     -1, {
+         errno.EFAULT: "pipefd is not valid.",
+         errno.EMFILE: "Too many file descriptors are in use by the process.",
+         errno.ENFILE: ("The system limit on the total number of open files"
+                        " has been reached."),
+     }),
+    ('pipe2', c_int, [POINTER(c_int * 2), c_int],
+     """int pipe2(int pipefd[2], int flags);""",
+     -1, {
+         errno.EFAULT: "pipefd is not valid.",
+         errno.EINVAL: "Invalid value in flags.",
+         errno.EMFILE: "Too many file descriptors are in use by the process.",
+         errno.ENFILE: ("The system limit on the total number of open files"
+                        " has been reached."),
      }),
 )
 
