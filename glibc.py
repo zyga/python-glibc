@@ -54,7 +54,7 @@ __all__ = [
     # This value is extended with types, constants and function from glibc
 ]
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # Load the standard C library on this system
