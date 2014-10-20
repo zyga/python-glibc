@@ -173,55 +173,56 @@ _mod = LazyModule.shadow_normal_module()
 
 
 # Lazily define all supported glibc types
-_glibc_types = ((
-    """
-    struct sigset_t;
-    """,
-    'struct', 'sigset_t', 128, (
-        # There's no spec on that, pulled from glibc
-        ('__val', c_ulong * (1024 // (8 * ctypes.sizeof(c_ulong)))),
-    )
-), ("""
-    struct signalfd_siginfo {
-        uint32_t ssi_signo;   /* Signal number */
-        int32_t  ssi_errno;   /* Error number (unused) */
-        int32_t  ssi_code;    /* Signal code */
-        uint32_t ssi_pid;     /* PID of sender */
-        uint32_t ssi_uid;     /* Real UID of sender */
-        int32_t  ssi_fd;      /* File descriptor (SIGIO) */
-        uint32_t ssi_tid;     /* Kernel timer ID (POSIX timers)
-        uint32_t ssi_band;    /* Band event (SIGIO) */
-        uint32_t ssi_overrun; /* POSIX timer overrun count */
-        uint32_t ssi_trapno;  /* Trap number that caused signal */
-        int32_t  ssi_status;  /* Exit status or signal (SIGCHLD) */
-        int32_t  ssi_int;     /* Integer sent by sigqueue(3) */
-        uint64_t ssi_ptr;     /* Pointer sent by sigqueue(3) */
-        uint64_t ssi_utime;   /* User CPU time consumed (SIGCHLD) */
-        uint64_t ssi_stime;   /* System CPU time consumed (SIGCHLD) */
-        uint64_t ssi_addr;    /* Address that generated signal
-                                 (for hardware-generated signals) */
-        uint8_t  pad[X];      /* Pad size to 128 bytes (allow for
-                                 additional fields in the future) */
-    };""",
-    'struct', 'signalfd_siginfo', 128, (
-        ('ssi_signo', c_uint32),
-        ('ssi_errno', c_int32),
-        ('ssi_code', c_int32),
-        ('ssi_pid', c_uint32),
-        ('ssi_uid', c_uint32),
-        ('ssi_fd', c_int32),
-        ('ssi_tid', c_uint32),
-        ('ssi_band', c_uint32),
-        ('ssi_overrun', c_uint32),
-        ('ssi_trapno', c_uint32),
-        ('ssi_status', c_int32),
-        ('ssi_int', c_int32),
-        ('ssi_ptr', c_uint64),
-        ('ssi_utime', c_uint64),
-        ('ssi_stime', c_uint64),
-        ('ssi_addr', c_uint64),
-        ('pad', c_uint8 * 44),
-    )))
+_glibc_types = (
+    ("""
+     struct sigset_t;
+     """,
+     'struct', 'sigset_t', 128, (
+         # There's no spec on that, pulled from glibc
+         ('__val', c_ulong * (1024 // (8 * ctypes.sizeof(c_ulong)))),
+     )),
+    ("""
+     struct signalfd_siginfo {
+         uint32_t ssi_signo;   /* Signal number */
+         int32_t  ssi_errno;   /* Error number (unused) */
+         int32_t  ssi_code;    /* Signal code */
+         uint32_t ssi_pid;     /* PID of sender */
+         uint32_t ssi_uid;     /* Real UID of sender */
+         int32_t  ssi_fd;      /* File descriptor (SIGIO) */
+         uint32_t ssi_tid;     /* Kernel timer ID (POSIX timers)
+         uint32_t ssi_band;    /* Band event (SIGIO) */
+         uint32_t ssi_overrun; /* POSIX timer overrun count */
+         uint32_t ssi_trapno;  /* Trap number that caused signal */
+         int32_t  ssi_status;  /* Exit status or signal (SIGCHLD) */
+         int32_t  ssi_int;     /* Integer sent by sigqueue(3) */
+         uint64_t ssi_ptr;     /* Pointer sent by sigqueue(3) */
+         uint64_t ssi_utime;   /* User CPU time consumed (SIGCHLD) */
+         uint64_t ssi_stime;   /* System CPU time consumed (SIGCHLD) */
+         uint64_t ssi_addr;    /* Address that generated signal
+                                  (for hardware-generated signals) */
+         uint8_t  pad[X];      /* Pad size to 128 bytes (allow for
+                                  additional fields in the future) */
+     };""",
+     'struct', 'signalfd_siginfo', 128, (
+         ('ssi_signo', c_uint32),
+         ('ssi_errno', c_int32),
+         ('ssi_code', c_int32),
+         ('ssi_pid', c_uint32),
+         ('ssi_uid', c_uint32),
+         ('ssi_fd', c_int32),
+         ('ssi_tid', c_uint32),
+         ('ssi_band', c_uint32),
+         ('ssi_overrun', c_uint32),
+         ('ssi_trapno', c_uint32),
+         ('ssi_status', c_int32),
+         ('ssi_int', c_int32),
+         ('ssi_ptr', c_uint64),
+         ('ssi_utime', c_uint64),
+         ('ssi_stime', c_uint64),
+         ('ssi_addr', c_uint64),
+         ('pad', c_uint8 * 44),
+     )),
+)
 
 
 def _glibc_type(doc, kind, name, size, fields):
