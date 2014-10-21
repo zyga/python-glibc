@@ -48,38 +48,68 @@ class GlibcTests(unittest.TestCase):
         from glibc import signalfd
         self.assertIsInstance(signalfd, _glibc._FuncPtr)
 
-    def test_constants(self):
+    def test_real_constant_value(self):
         import glibc
         for info in glibc._old._glibc_constants:
-            with self.subTest(name=info[0]):
-                measured = get_effective_value(info)
-                expected = info[2]
-                # print(info[0], "expected", expected, "measured", measured)
+            with self.subTest(name=info.name):
+                expected = get_real_constant_value(info)
+                measured = info.py_value
+                # print(info.name, "expected", expected, "measured", measured)
+                self.assertEqual(expected, measured)
+
+    def test_real_type_size(self):
+        import glibc
+        for info in glibc._old._glibc_types:
+            with self.subTest(name=info.py_name):
+                expected = get_real_type_size(info)
+                measured = ctypes.sizeof(getattr(glibc, info.py_name))
+                # print(info.py_name, "expected", expected, "measured",
+                #       measured)
                 self.assertEqual(expected, measured)
 
 
-def get_effective_value(info):
-    name, ctype, value, macros = info
+def get_real_constant_value(info):
     with tempfile.TemporaryDirectory() as tmpdir:
-        name_c = os.path.join(tmpdir, 'test_{}.c'.format(name))
-        name_bin = os.path.join(tmpdir, 'test_{}.bin'.format(name))
+        name_c = os.path.join(tmpdir, 'test_{}.c'.format(info.name))
+        name_bin = os.path.join(tmpdir, 'test_{}.bin'.format(info.name))
         with open(name_c, 'wt') as stream:
-            for macro in macros:
+            for macro in info.c_macros:
                 print(macro, file=stream)
             c_type_name = {
                 'i': 'int',
                 'I': 'unsigned int',
-            }[ctype._type_]
+            }[info.py_ctype._type_]
             c_printf_format = {
                 'i': 'd',
                 'I': 'u'
-            }[ctype._type_]
+            }[info.py_ctype._type_]
             print("{} test_const = {};".format(
-                c_type_name, info[0]), file=stream)
+                c_type_name, info.name), file=stream)
             print("#include <stdio.h>", file=stream)
             print(file=stream)
             print("int main() {", file=stream)
             print(r'  printf("%{}\n", test_const);'.format(c_printf_format),
+                  file=stream)
+            print("  return 0;", file=stream)
+            print("}", file=stream)
+        # subprocess.call(['cat', name_c])
+        subprocess.check_call([
+            'gcc', '-Wall', '-Werror', name_c, '-o', name_bin])
+        return int(
+            subprocess.check_output([name_bin]).decode("UTF-8").strip())
+
+
+def get_real_type_size(info):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        name_c = os.path.join(tmpdir, 'test_{}.c'.format(info.py_name))
+        name_bin = os.path.join(tmpdir, 'test_{}.bin'.format(info.py_name))
+        with open(name_c, 'wt') as stream:
+            for macro in info.c_macros:
+                print(macro, file=stream)
+            print("#include <stdio.h>", file=stream)
+            print(file=stream)
+            print("int main() {", file=stream)
+            print(r'  printf("%zd\n", sizeof({}));'.format(info.c_name),
                   file=stream)
             print("  return 0;", file=stream)
             print("}", file=stream)

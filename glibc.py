@@ -41,6 +41,7 @@ from ctypes import c_uint8
 from ctypes import c_ulong
 from ctypes import c_voidp
 from ctypes import get_errno
+import collections
 import ctypes
 import ctypes.util
 import errno
@@ -175,15 +176,22 @@ class LazyModule(types.ModuleType):
 _mod = LazyModule.shadow_normal_module()
 
 
+_glibc_typeinfo = collections.namedtuple(
+    '_glibc_typeinfo',
+    'doc py_kind py_name c_name c_packed py_fields, c_macros')
+
+
 # Lazily define all supported glibc types
-_glibc_types = (
+_glibc_types = [
     ("""
      struct sigset_t;
      """,
-     'struct', 'sigset_t', 128, (
+     'struct', 'sigset_t', 'sigset_t', False, (
          # There's no spec on that, pulled from glibc
          ('__val', c_ulong * (1024 // (8 * ctypes.sizeof(c_ulong)))),
-     )),
+     ), [
+         '#include <signal.h>'
+     ]),
     ("""
      struct signalfd_siginfo {
          uint32_t ssi_signo;   /* Signal number */
@@ -206,7 +214,7 @@ _glibc_types = (
          uint8_t  pad[X];      /* Pad size to 128 bytes (allow for
                                   additional fields in the future) */
      };""",
-     'struct', 'signalfd_siginfo', 128, (
+     'struct', 'signalfd_siginfo', 'struct signalfd_siginfo', False, (
          ('ssi_signo', c_uint32),
          ('ssi_errno', c_int32),
          ('ssi_code', c_int32),
@@ -224,7 +232,9 @@ _glibc_types = (
          ('ssi_stime', c_uint64),
          ('ssi_addr', c_uint64),
          ('pad', c_uint8 * 44),
-     )),
+     ), [
+         '#include <sys/signalfd.h>'
+     ]),
     ("""
      typedef union epoll_data {
          void    *ptr;
@@ -233,55 +243,66 @@ _glibc_types = (
          uint64_t u64;
      } epoll_data_t;
      """,
-     'union', 'epoll_data_t', 8, (
+     'union', 'epoll_data_t', 'epoll_data_t', False, (
          ('ptr', c_voidp),
          ('fd', c_int),
          ('u32', c_uint32),
          ('u64', c_uint64),
-     )),
+     ), [
+         '#include <sys/epoll.h>'
+     ]),
     ("""
      struct epoll_event {
          uint32_t     events;    /* Epoll events */
          epoll_data_t data;      /* User data variable */
      };
      """,
-     'struct', 'epoll_event', 16, (
+     'struct', 'epoll_event', 'struct epoll_event', True, (
          ('events', c_uint32),
          ('data', 'glibc.epoll_data_t'),
-     )),
-)
+     ), [
+         '#include <sys/epoll.h>'
+     ]),
+]
 
 
-def _glibc_type(doc, kind, name, size, fields):
+_glibc_types = [_glibc_typeinfo(*i) for i in _glibc_types]
+
+
+def _glibc_type(doc, py_kind, py_name, c_name, c_packed, py_fields, c_macros):
     _globals = {'ctypes': ctypes, 'glibc': _mod}
-    fields = tuple([
-        (field_name, (eval(field_type, _globals)
-                      if isinstance(field_type, str) else field_type))
-        for field_name, field_type in fields
+    py_fields = tuple([
+        (py_field_name, (eval(py_field_type, _globals)
+                      if isinstance(py_field_type, str)
+                      else py_field_type))
+        for py_field_name, py_field_type in py_fields
     ])
-    if kind == 'struct':
-        new_type = type(name, (ctypes.Structure, ), {
+    if py_kind == 'struct':
+        new_type = type(py_name, (ctypes.Structure, ), {
             '__doc__': doc,
-            '_fields_': fields,
+            '_fields_': py_fields,
+            '_pack_': c_packed,
         })
-    elif kind == 'union':
-        new_type = type(name, (ctypes.Union, ), {
+    elif py_kind == 'union':
+        if c_packed:
+            raise ValueError("c_packed is meaningless for unions")
+        new_type = type(py_name, (ctypes.Union, ), {
             '__doc__': doc,
-            '_fields_': fields,
+            '_fields_': py_fields,
         })
     else:
-        raise ValueError(kind)
-    assert ctypes.sizeof(new_type) == size, \
-        "{} {} size mismatch (got {}, expected {})".format(
-            kind, name, ctypes.sizeof(new_type), size)
+        raise ValueError("bad value of py_kind")
     return new_type
 
 
 for info in _glibc_types:
     _mod.lazily(info[2], _glibc_type, info)
 del info
-del _glibc_types
+# del _glibc_types
 
+
+_glibc_constantinfo = collections.namedtuple(
+    '_glibc_constantinfo', 'name py_ctype py_value c_macros')
 
 # Lazily define all supported glibc constants
 _glibc_constants = (
@@ -327,8 +348,11 @@ _glibc_constants = (
 )
 
 
+_glibc_constants = [_glibc_constantinfo(*i) for i in _glibc_constants]
+
+
 for info in _glibc_constants:
-    _mod.immediate(info[0], info[2])
+    _mod.immediate(info.name, info.py_value)
 del info
 # del _glibc_constants
 
