@@ -21,6 +21,10 @@ except ImportError:
     from distutils.core import setup
 
 
+readme = open('README.rst', 'rt').read()
+history = open('HISTORY.rst', 'rt').read()
+
+
 setup(
     name="glibc",
     version="0.3",
@@ -31,7 +35,7 @@ setup(
     license="LGPLv3",
     platforms=["Linux"],
     description="Pure-Python bindings to glibc (based on ctypes)",
-    long_description=open('README.rst', 'rt').read(),
+    long_description=readme + '\n\n' + history,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
