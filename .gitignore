@@ -1,6 +1,7 @@
 *.egg-info
 *.o
 *.pyc
+*.strace
 *.tar.gz
 .tox
 MANIFEST
