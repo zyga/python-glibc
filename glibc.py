@@ -304,7 +304,7 @@ del info
 _glibc_constantinfo = collections.namedtuple(
     '_glibc_constantinfo', 'name py_ctype py_value c_macros')
 
-# Lazily define all supported glibc constants
+# Non-lazily define all supported glibc constants
 _glibc_constants = (
     ('SIG_BLOCK',       c_int, 0, ('#include <signal.h>',)),
     ('SIG_UNBLOCK',     c_int, 1, ('#include <signal.h>',)),
