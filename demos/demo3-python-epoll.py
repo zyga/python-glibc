@@ -15,7 +15,7 @@ from sys import argv
 from select import epoll
 
 from glibc import (
-    SIG_BLOCK, SIG_UNBLOCK, SFD_CLOEXEC, O_CLOEXEC, EPOLL_CLOEXEC, EPOLLIN,
+    SIG_BLOCK, SIG_UNBLOCK, SFD_CLOEXEC, O_CLOEXEC, EPOLLIN,
     EPOLLOUT, EPOLLRDHUP, EPOLLPRI, EPOLLERR, EPOLLHUP, PIPE_BUF, CLD_EXITED,
     CLD_KILLED, CLD_DUMPED, CLD_STOPPED, CLD_TRAPPED, CLD_CONTINUED, sigset_t,
     signalfd_siginfo, sigemptyset, sigaddset, sigprocmask, signalfd, pipe2,
@@ -38,7 +38,7 @@ def main():
     sfd = signalfd(-1, mask, SFD_CLOEXEC)
     print("Got signalfd", sfd)
     # Get a epoll descriptor
-    epoll_obj = epoll(flags=EPOLL_CLOEXEC)
+    epoll_obj = epoll()
     print("Got epollfd", epoll_obj.fileno())
     print("Adding signalfd fd {} to epoll".format(sfd))
     epoll_obj.register(sfd, EPOLLIN)
