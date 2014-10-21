@@ -542,6 +542,14 @@ _glibc_functions = (
          errno.EMFILE: ("The process already has the maximum number of file"
                         " descriptors open and tried to open a new one."),
      }),
+    ('close', c_int, [c_int],
+     """int close(int fd);""",
+     -1, {
+         errno.EBADF: "fd isn't a valid open file descriptor.",
+         errno.EINTR: ("The close() call was interrupted by a signal;"
+                       " see signal(7)."),
+         errno.EIO: "An I/O error occurred."
+     }),
 )
 
 
