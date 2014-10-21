@@ -15,14 +15,16 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import os
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
 
-readme = open('README.rst', 'rt').read()
-history = open('HISTORY.rst', 'rt').read()
+base_dir = os.path.dirname(__file__)
+readme = open(os.path.join(base_dir, 'README.rst'), 'rt').read()
+history = open(os.path.join(base_dir, 'HISTORY.rst'), 'rt').read()
 
 
 setup(
