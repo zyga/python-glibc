@@ -27,7 +27,7 @@ history = open('HISTORY.rst', 'rt').read()
 
 setup(
     name="glibc",
-    version="0.3",
+    version="0.4",
     url="https://github.com/zyga/python-glibc/",
     py_modules=['glibc'],
     author="Zygmunt Krynicki",
