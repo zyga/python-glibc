@@ -1,7 +1,9 @@
 *.egg-info
+*.o
 *.pyc
 *.tar.gz
 .tox
 MANIFEST
 build/
+demos/demo3
 dist/
