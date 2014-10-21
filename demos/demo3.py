@@ -55,9 +55,17 @@ def main():
     stdout_pair = (c_int * 2)()
     pipe2(byref(stdout_pair), O_CLOEXEC)
     print("Got stdout pipe pair", stdout_pair[0], stdout_pair[1])
+    print("Adding pipe fd {} to epoll".format(stdout_pair[0]))
+    ev.events = c_uint32(EPOLLIN | EPOLLERR | EPOLLRDHUP | EPOLLOUT | EPOLLPRI)
+    ev.data.fd = stdout_pair[0]
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, stdout_pair[0], byref(ev))
     stderr_pair = (c_int * 2)()
     pipe2(byref(stderr_pair), O_CLOEXEC)
     print("Got stderr pipe pair", stderr_pair[0], stderr_pair[1])
+    print("Adding pipe fd {} to epoll".format(stdout_pair[0]))
+    ev.events = c_uint32(EPOLLIN | EPOLLERR | EPOLLRDHUP | EPOLLOUT | EPOLLPRI)
+    ev.data.fd = stderr_pair[0]
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, stderr_pair[0], byref(ev))
     prog = argv[1:]
     if not prog:
         prog = ['echo', 'usage: demo.py PROG [ARGS]']
@@ -71,26 +79,16 @@ def main():
         dup3(stdout_pair[1], 1, 0)
         dup3(stderr_pair[1], 2, 0)
         execlp(prog[0], *prog)
+        return -1
     else:
-        for pair in stdout_pair, stderr_pair:
-            read_end, write_end = pair
-            # We need to close the write sides of both pipes
-            close(write_end)
-            # And add the read side to epoll
-            ev.events = c_uint32(EPOLLIN | EPOLLHUP |
-                                 EPOLLERR | EPOLLRDHUP |
-                                 EPOLLOUT | EPOLLPRI)
-            ev.data.fd = read_end
-            print("Adding pipe fd {} to epoll".format(read_end))
-            epoll_ctl(epollfd, EPOLL_CTL_ADD, read_end, byref(ev))
-        stdout_pipe_fd = stdout_pair[0]
-        stderr_pipe_fd = stderr_pair[0]
+        close(stdout_pair[1])
+        close(stderr_pair[1])
     with fdopen(sfd, 'rb', 0) as sfd_stream:
         MAX_EVENTS = 10
         event_array = (epoll_event * MAX_EVENTS)()
         waiting_for = set(['stdout', 'stderr', 'proc'])
         while waiting_for:
-            print("Waiting for events...", waiting_for, flush=True)
+            print("Waiting for events...", ' '.join(waiting_for), flush=True)
             nfds = epoll_wait(epollfd, cast(
                 byref(event_array), POINTER(epoll_event)
             ), MAX_EVENTS, -1)
@@ -113,9 +111,9 @@ def main():
                     event_bits.append('EPOLLHUP')
                 if event.data.fd == sfd:
                     fd_name = 'signalfd()'
-                elif event.data.fd == stdout_pipe_fd:
+                elif event.data.fd == stdout_pair[0]:
                     fd_name = 'stdout pipe2()'
-                elif event.data.fd == stderr_pipe_fd:
+                elif event.data.fd == stderr_pair[0]:
                     fd_name = 'stderr pipe2()'
                 else:
                     fd_name = "???"
@@ -158,13 +156,13 @@ def main():
                                     waiting_for.remove('proc')
                                     if 'stdout' in waiting_for:
                                         epoll_ctl(epollfd, EPOLL_CTL_DEL,
-                                                  stdout_pipe_fd, None)
-                                        close(stdout_pipe_fd)
+                                                  stdout_pair[0], None)
+                                        close(stdout_pair[0])
                                         waiting_for.remove('stdout')
                                     if 'stderr' in waiting_for:
                                         epoll_ctl(epollfd, EPOLL_CTL_DEL,
-                                                  stderr_pipe_fd, None)
-                                        close(stderr_pipe_fd)
+                                                  stderr_pair[0], None)
+                                        close(stderr_pair[0])
                                         waiting_for.remove('stderr')
                                 elif waitid_result.si_code == CLD_KILLED:
                                     assert WIFSIGNALED(waitid_result.si_status)
@@ -194,31 +192,31 @@ def main():
                         else:
                             print("Read unexpected signal: {}".format(
                                 fdsi.ssi_signo))
-                elif event.data.fd == stdout_pipe_fd:
+                elif event.data.fd == stdout_pair[0]:
                     print("pipe() (stdout) descriptor ready")
                     if event.events & EPOLLIN:
                         print("Reading data from stdout...")
-                        data = read(stdout_pipe_fd, PIPE_BUF)
+                        data = read(stdout_pair[0], PIPE_BUF)
                         print("Read {} bytes from stdout".format(len(data)))
                         print(data)
                     if event.events & EPOLLHUP:
                         print("Removing stdout pipe from epoll")
-                        epoll_ctl(epollfd, EPOLL_CTL_DEL, stdout_pipe_fd, None)
+                        epoll_ctl(epollfd, EPOLL_CTL_DEL, stdout_pair[0], None)
                         print("Closing stdout pipe")
-                        close(stdout_pipe_fd)
+                        close(stdout_pair[0])
                         waiting_for.remove('stdout')
-                elif event.data.fd == stderr_pipe_fd:
+                elif event.data.fd == stderr_pair[0]:
                     print("pipe() (stderr) descriptor ready")
                     if event.events & EPOLLIN:
                         print("Reading data from stdout...")
-                        data = read(stderr_pipe_fd, PIPE_BUF)
+                        data = read(stderr_pair[0], PIPE_BUF)
                         print("Read {} bytes from stderr".format(len(data)))
                         print(data)
                     if event.events & EPOLLHUP:
                         print("Removing stderr pipe from epoll")
-                        epoll_ctl(epollfd, EPOLL_CTL_DEL, stderr_pipe_fd, None)
+                        epoll_ctl(epollfd, EPOLL_CTL_DEL, stderr_pair[0], None)
                         print("Closing stderr pipe")
-                        close(stderr_pipe_fd)
+                        close(stderr_pair[0])
                         waiting_for.remove('stderr')
                 else:
                     # FIXME: we are still getting weird activation events on fd
