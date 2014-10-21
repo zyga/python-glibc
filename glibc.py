@@ -315,6 +315,7 @@ _glibc_constants = (
     ('CLD_TRAPPED',     c_int, 4, ('#include <signal.h>',)),
     ('CLD_STOPPED',     c_int, 5, ('#include <signal.h>',)),
     ('CLD_CONTINUED',   c_int, 6, ('#include <signal.h>',)),
+    ('FD_SETSIZE',      c_int, 1024, ('#include <sys/types.h>',)),
     ('SFD_CLOEXEC',     c_int, 0o2000000, ('#include <sys/signalfd.h>',)),
     ('SFD_NONBLOCK',    c_int, 0o0004000, ('#include <sys/signalfd.h>',)),
     ('EPOLL_CLOEXEC',   c_int, 0o2000000, ('#include <sys/epoll.h>',)),
