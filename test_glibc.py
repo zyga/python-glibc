@@ -65,6 +65,25 @@ class GlibcTests(unittest.TestCase):
                 measured = ctypes.sizeof(getattr(glibc, info.py_name))
                 self.assertEqual(expected, measured)
 
+    def test_real_field_offset(self):
+        import glibc
+        for info in glibc._old._glibc_types:
+            for field in info.py_fields:
+                with self.subTest(name=info.py_name + '.' + field[0]):
+                    expected = get_real_field_offset(info, field[0])
+                    measured = getattr(getattr(glibc, info.py_name),
+                                       field[0]).offset
+                    self.assertEqual(expected, measured)
+
+    def test_real_field_size(self):
+        import glibc
+        for info in glibc._old._glibc_types:
+            for field in info.py_fields:
+                with self.subTest(name=info.py_name + '.' + field[0]):
+                    expected = get_real_field_size(info, field[0])
+                    measured = getattr(getattr(glibc, info.py_name),
+                                       field[0]).size
+                    self.assertEqual(expected, measured)
 
     def test_real_alias_size(self):
         # Aliases are just not structs but primitive types that are
@@ -113,17 +132,69 @@ def get_real_constant_value(info):
 
 def get_real_type_size(info):
     with tempfile.TemporaryDirectory() as tmpdir:
-        name_c = os.path.join(tmpdir, 'test_{}.c'.format(info.py_name))
-        name_bin = os.path.join(tmpdir, 'test_{}.bin'.format(info.py_name))
+        name_c = os.path.join(tmpdir, 'sizeof_{}.c'.format(info.py_name))
+        name_bin = os.path.join(tmpdir, 'sizeof_{}.bin'.format(info.py_name))
         with open(name_c, 'wt') as stream:
             for macro in info.c_macros:
                 print(macro, file=stream)
+            print("#include <stddef.h>", file=stream)
+            print("static size_t size = sizeof({});".format(
+                info.c_name), file=stream)
             print("#include <stdio.h>", file=stream)
             print(file=stream)
             print("int main() {", file=stream)
-            print(r'  printf("%zd\n", sizeof({}));'.format(info.c_name),
-                  file=stream)
-            print("  return 0;", file=stream)
+            print(r'  printf("%zd\n", size);', file=stream)
+            print(r"  return 0;", file=stream)
+            print("}", file=stream)
+        # subprocess.call(['cat', name_c])
+        subprocess.check_call([
+            'gcc', '-Wall', '-Werror', name_c, '-o', name_bin])
+        return int(
+            subprocess.check_output([name_bin]).decode("UTF-8").strip())
+
+
+def get_real_field_size(info, field):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        name_c = os.path.join(tmpdir, 'sizeof_{}.{}.c'.format(
+            info.py_name, field))
+        name_bin = os.path.join(tmpdir, 'sizeof_{}.{}.bin'.format(
+            info.py_name, field))
+        with open(name_c, 'wt') as stream:
+            for macro in info.c_macros:
+                print(macro, file=stream)
+            print("#include <stddef.h>", file=stream)
+            print("static size_t size = sizeof((({} *)0)->{});".format(
+                info.c_name, field), file=stream)
+            print("#include <stdio.h>", file=stream)
+            print(file=stream)
+            print("int main() {", file=stream)
+            print(r'  printf("%zd\n", size);', file=stream)
+            print(r"  return 0;", file=stream)
+            print("}", file=stream)
+        # subprocess.call(['cat', name_c])
+        subprocess.check_call([
+            'gcc', '-Wall', '-Werror', name_c, '-o', name_bin])
+        return int(
+            subprocess.check_output([name_bin]).decode("UTF-8").strip())
+
+
+def get_real_field_offset(info, field):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        name_c = os.path.join(tmpdir, 'offsetof_{}.{}.c'.format(
+            info.py_name, field))
+        name_bin = os.path.join(tmpdir, 'offsetof_{}.{}.bin'.format(
+            info.py_name, field))
+        with open(name_c, 'wt') as stream:
+            for macro in info.c_macros:
+                print(macro, file=stream)
+            print("#include <stddef.h>", file=stream)
+            print("static size_t offset = offsetof({}, {});".format(
+                info.c_name, field), file=stream)
+            print("#include <stdio.h>", file=stream)
+            print(file=stream)
+            print("int main() {", file=stream)
+            print(r'  printf("%zd\n", offset);', file=stream)
+            print(r"  return 0;", file=stream)
             print("}", file=stream)
         # subprocess.call(['cat', name_c])
         subprocess.check_call([
