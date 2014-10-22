@@ -54,3 +54,6 @@ The following glibc functions are supported
 ``sigismember(3)``
 ``signalfd(2)``
 ``sigprocmask(2)``
+``timerfd_create(2)``
+``timerfd_gettime(2)``
+``timerfd_settime(2)``
