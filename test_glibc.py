@@ -99,8 +99,8 @@ class GlibcTests(unittest.TestCase):
 
 def get_real_constant_value(info):
     with tempfile.TemporaryDirectory() as tmpdir:
-        name_c = os.path.join(tmpdir, 'test_{}.c'.format(info.name))
-        name_bin = os.path.join(tmpdir, 'test_{}.bin'.format(info.name))
+        name_c = os.path.join(tmpdir, 'valueof_{}.c'.format(info.name))
+        name_bin = os.path.join(tmpdir, 'valueof_{}.bin'.format(info.name))
         with open(name_c, 'wt') as stream:
             for macro in info.c_macros:
                 print(macro, file=stream)
