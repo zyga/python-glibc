@@ -29,7 +29,7 @@ history = open(os.path.join(base_dir, 'HISTORY.rst'), 'rt').read()
 
 setup(
     name="glibc",
-    version="0.4",
+    version="0.5",
     url="https://github.com/zyga/python-glibc/",
     py_modules=['glibc'],
     author="Zygmunt Krynicki",
