@@ -288,6 +288,55 @@ _glibc_types = [
      ), [
          '#include <sys/epoll.h>'
      ]),
+    ("""
+     struct itimerspec {
+         struct timespec it_interval;  /* Interval for periodic timer */
+         struct timespec it_value;     /* Initial expiration */
+     };
+     """,
+     'struct', 'itimerspec', 'struct itimerspec', False, (
+         ('it_interval', 'glibc.timespec'),
+         ('it_value', 'glibc.timespec'),
+     ), [
+         '#include <time.h>',
+     ]),
+    ("""
+     struct timespec {
+        time_t tv_sec;                /* Seconds */
+        long   tv_nsec;               /* Nanoseconds */
+     };
+     """,
+     'struct', 'timespec', 'struct timespec', False, (
+         # NOTE: time_t is __TIME_T_TYPE, is __SYSCALL_SLONG_TYPE, is
+         # __SQUAD_TYPE, is __quad_t or long it. This is likely not
+         # true on !x86_64 but I have to start somewhere.
+         #
+         # offtopic, I really really think the type proliferation in C is
+         # out of control. What would be the problem with having only two
+         # types? machine dependent natural word size (same as pointer
+         # size), fuck that single exotic 36 bit machine, and a portable
+         # collection of fixed-width signed/unsigned types?
+         #
+         # long, long long, quad and everything else is just meaningless
+         # and makes writing portable software harder as nobody knows how
+         # to use those types *correctly* and portably to begin with.
+         ('tv_sec',     c_long),
+         ('tv_nsec',    c_long),
+     ), [
+         '#include <time.h>',
+     ]),
+    ("""
+     struct timeval {
+        time_t      tv_sec;     /* Seconds */
+        suseconds_t tv_usec;    /* Microseconds */
+     };
+     """,
+     'struct', 'timeval', 'struct timeval', False, (
+         ('tv_sec',     'glibc.time_t'),
+         ('tv_usec',    'glibc.suseconds_t'),
+     ), [
+         '#include <sys/time.h>',
+     ]),
 ]
 
 
@@ -466,6 +515,11 @@ _glibc_constants = (
     ('PR_SET_PTRACER',              c_int, 0x59616d61, (
         '#include <sys/prctl.h>',)),
     ('PR_SET_PTRACER_ANY',          c_ulong, -1, ('#include <sys/prctl.h>',)),
+    ('TFD_TIMER_ABSTIME',           c_int, 1, ('#include <sys/timerfd.h>',)),
+    ('TFD_CLOEXEC',                 c_int, 0o2000000, (
+        '#include <sys/timerfd.h>',)),
+    ('TFD_NONBLOCK',                c_int, 0o0004000, (
+        '#include <sys/timerfd.h>',)),
 )
 
 
@@ -722,6 +776,22 @@ _glibc_functions = (
                  " link, which is prohibited."),
          EBADF: ("option  is  PR_SET_MM, arg3 is PR_SET_MM_EXE_FILE,"
                  " and the file descriptor passed in arg4 is not valid."),
+     }),
+    ('timerfd_create', c_int, [c_int, c_int],
+     """int timerfd_create(int clockid, int flags);""",
+     -1, {
+     }),
+    ('timerfd_settime', c_int, [c_int, c_int,
+                                'ctypes.POINTER(glibc.itimerspec)',
+                                'ctypes.POINTER(glibc.itimerspec)'],
+     """int timerfd_settime(int fd, int flags,
+                            const struct itimerspec *new_value,
+                            struct itimerspec *old_value);""",
+     -1, {
+     }),
+    ('timerfd_gettime', c_int, [c_int, 'ctypes.POINTER(glibc.itimerspec)'],
+     """int timerfd_gettime(int fd, struct itimerspec *curr_value);""",
+     -1, {
      }),
 )
 
