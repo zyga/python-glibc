@@ -236,7 +236,7 @@ _glibc_types = [
          uint64_t ssi_stime;   /* System CPU time consumed (SIGCHLD) */
          uint64_t ssi_addr;    /* Address that generated signal
                                   (for hardware-generated signals) */
-         uint8_t  pad[X];      /* Pad size to 128 bytes (allow for
+         uint8_t  __pad[48];   /* Pad size to 128 bytes (allow for
                                   additional fields in the future) */
      };""",
      'struct', 'signalfd_siginfo', 'struct signalfd_siginfo', False, (
@@ -256,7 +256,7 @@ _glibc_types = [
          ('ssi_utime', c_uint64),
          ('ssi_stime', c_uint64),
          ('ssi_addr', c_uint64),
-         ('pad', c_uint8 * 44),
+         ('__pad', c_uint8 * 48),
      ), [
          '#include <sys/signalfd.h>'
      ]),
