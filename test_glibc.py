@@ -78,10 +78,12 @@ def get_real_constant_value(info):
             c_type_name = {
                 'i': 'int',
                 'I': 'unsigned int',
+                'L': 'unsigned long',
             }[info.py_ctype._type_]
             c_printf_format = {
                 'i': 'd',
-                'I': 'u'
+                'I': 'u',
+                'L': 'ld',
             }[info.py_ctype._type_]
             print("{} test_const = {};".format(
                 c_type_name, info.name), file=stream)
