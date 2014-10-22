@@ -63,8 +63,18 @@ class GlibcTests(unittest.TestCase):
             with self.subTest(name=info.py_name):
                 expected = get_real_type_size(info)
                 measured = ctypes.sizeof(getattr(glibc, info.py_name))
-                # print(info.py_name, "expected", expected, "measured",
-                #       measured)
+                self.assertEqual(expected, measured)
+
+
+    def test_real_alias_size(self):
+        # Aliases are just not structs but primitive types that are
+        # hidden behind obscure UNIX types for every possible number out
+        # there
+        import glibc
+        for info in glibc._old._glibc_aliases:
+            with self.subTest(name=info.py_name):
+                expected = get_real_type_size(info)
+                measured = ctypes.sizeof(getattr(glibc, info.py_name))
                 self.assertEqual(expected, measured)
 
 

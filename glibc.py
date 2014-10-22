@@ -34,6 +34,7 @@ from __future__ import division
 from ctypes import POINTER
 from ctypes import c_int
 from ctypes import c_int32
+from ctypes import c_long
 from ctypes import c_uint
 from ctypes import c_uint32
 from ctypes import c_uint64
@@ -180,6 +181,23 @@ class LazyModule(types.ModuleType):
 
 # Replace 'glibc' module in sys.modules with LazyModule
 _mod = LazyModule.shadow_normal_module()
+
+
+_glibc_aliasinfo = collections.namedtuple(
+    '_glibc_aliasinfo', 'py_name c_name ctypes_type c_macros')
+
+
+_glibc_aliases = [
+    ('time_t', 'time_t', c_long, ('#include <time.h>',)),
+    ('suseconds_t', 'suseconds_t', c_long, ('#include <sys/types.h>',)),
+]
+
+_glibc_aliases = [_glibc_aliasinfo(*i) for i in _glibc_aliases]
+
+
+for info in _glibc_aliases:
+    _mod.immediate(info.py_name, info.ctypes_type)
+del info
 
 
 _glibc_typeinfo = collections.namedtuple(
