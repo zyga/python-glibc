@@ -57,6 +57,7 @@ import os
 import sys
 import types
 
+
 __all__ = [
     # NOTE: __all__ in this module is magic!
     # This value is extended with types, constants and function from glibc
@@ -202,7 +203,7 @@ del info
 
 _glibc_typeinfo = collections.namedtuple(
     '_glibc_typeinfo',
-    'doc py_kind py_name c_name c_packed py_fields, c_macros')
+    'doc py_kind py_name c_name c_packed py_fields c_macros')
 
 
 # Lazily define all supported glibc types
