@@ -41,6 +41,12 @@ from ctypes import c_uint8
 from ctypes import c_ulong
 from ctypes import c_voidp
 from ctypes import get_errno
+from errno import EFAULT
+from errno import EINVAL
+from errno import EPERM
+from errno import EACCES
+from errno import EBUSY
+from errno import EBADF
 import collections
 import ctypes
 import ctypes.util
@@ -549,6 +555,67 @@ _glibc_functions = (
          errno.EINTR: ("The close() call was interrupted by a signal;"
                        " see signal(7)."),
          errno.EIO: "An I/O error occurred."
+     }),
+    ('prctl', c_int, [c_int, c_ulong, c_ulong, c_ulong, c_ulong],
+     """int prctl(int option, unsigned long arg2, unsigned long arg3,
+                  unsigned long arg4, unsigned long arg5);""",
+     -1, {
+         EFAULT: "arg2 is an invalid address.",
+         EINVAL: '\n'.join([
+             ("The value of option is not recognized."),
+             ("option is PR_MCE_KILL or PR_MCE_KILL_GET or PR_SET_MM,"
+              " and unused prctl() arguments were not specified as zero."),
+             ("arg2 is not valid value for this option."),
+             ("option is PR_SET_SECCOMP or PR_GET_SECCOMP, and the kernel"
+              " was not configured with CONFIG_SECCOMP."),
+             ("option is PR_SET_MM, and one of the following is true:\n"
+              " * arg4 or arg5 is nonzero;\n"
+              " * arg3 is greater than TASK_SIZE (the limit on the size\n"
+              "   of the user  address  space  for this architecture);\n"
+              " * arg2 is PR_SET_MM_START_CODE, PR_SET_MM_END_CODE,\n"
+              "   PR_SET_MM_START_DATA, PR_SET_MM_END_DATA,\n"
+              "   or PR_SET_MM_START_STACK, and the permissions\n"
+              "   of the corresponding memory area are not as required;\n"
+              " * arg2 is PR_SET_MM_START_BRK or PR_SET_MM_BRK, and arg3\n"
+              "   is less than or equal to the end of the data segment\n"
+              "   or specifies a value that would cause the RLIMIT_DATA\n"
+              "   resource limit to be exceeded."),
+             ("option is PR_SET_PTRACER and arg2 is not 0,"
+              " PR_SET_PTRACER_ANY, or the PID of an existing process."),
+             ("option is PR_SET_PDEATHSIG and arg2 is not a valid signal"
+              " number."),
+             ("option is PR_SET_DUMPABLE and arg2 is neither"
+              " SUID_DUMP_DISABLE nor SUID_DUMP_USER.\n"),
+             ("option is PR_SET_TIMING and arg2 is not"
+              " PR_TIMING_STATISTICAL."),
+             ("option is PR_SET_NO_NEW_PRIVS and arg2 is not equal to 1"
+              " or arg3, arg4, or arg5 is nonzero."),
+             ("option is PR_GET_NO_NEW_PRIVS and arg2, arg3, arg4,"
+              " or arg5 is nonzero."),
+             ("option is PR_SET_THP_DISABLE and arg3, arg4,"
+              " or arg5 is nonzero."),
+             ("option is PR_GET_THP_DISABLE and arg2, arg3, arg4,"
+              " or arg5 is nonzero.")
+         ]),
+         EPERM: '\n'.join([
+             ("option is PR_SET_SECUREBITS, and the caller does not have the"
+              " CAP_SETPCAP capability, or tried to unset a \"locked\" flag,"
+              " or tried to set a flag whose corresponding locked  flag was"
+              " set (see capabilities(7))."),
+             ("option is PR_SET_KEEPCAPS, and the callers's"
+              " SECURE_KEEP_CAPS_LOCKED flag is set (see capabilities(7))."),
+             ("option is PR_CAPBSET_DROP, and the caller does not have"
+              " the CAP_SETPCAP capability."),
+             ("option is PR_SET_MM, and the caller does not have"
+              " the CAP_SYS_RESOURCE capability.")
+         ]),
+         EACCES: ("option is PR_SET_MM, and arg3 is PR_SET_MM_EXE_FILE,"
+                  " the file is not executable."),
+         EBUSY: ("option is PR_SET_MM, arg3 is PR_SET_MM_EXE_FILE, and this"
+                 " the second attempt to change the /proc/pid/exe symbolic"
+                 " link, which is prohibited."),
+         EBADF: ("option  is  PR_SET_MM, arg3 is PR_SET_MM_EXE_FILE,"
+                 " and the file descriptor passed in arg4 is not valid."),
      }),
 )
 
