@@ -15,17 +15,27 @@ Features
 ========
 
 * Free software: LGPLv3 license
-* Supports lots of glibc functions (see below), data types and constants.
-* Supported on python 2.7+ and python 3.2+ and pypy
-* All other useful glibc features are in scope (patches welcome!)
-* ``from glibc import ...`` -- direct access to glibc functions and types via
-  lazy imports, fast startup, low memory overhead, efficient calls to glibc
-* Declarative code, easy to verify for correctness, easy to add more types,
-  functions and constants.
+* Works on python 2.7+ and python 3.2+ and pypy
+* Currently exposes 23 low-level glibc functions (see below), 10 data types and
+  118 constants. All useful glibc features are in scope (patches welcome!)
+* ``from glibc import ...`` -- direct access to glibc constants, functions and
+  types via lazy imports, fast startup, low memory overhead, efficient calls to
+  glibc
 * Translates error codes according to documentation (manual pages) of each
   supported function. Raises OSError with appropriate values and a customized,
   easy-to-understand error message.
-
+* Uses declarative "bindings", easy to verify for correctness, easy to add more
+  types, functions and constants. Built-in tests verify the value of each
+  constant, size and offset of each structure / union field and the size of the
+  whole structure / union.
+* Adds high-level abstractions on top of raw functions (glibc_select,
+  glibc_signalfd, glibc_selectors, glibc_sigprocmask) so that using them is
+  easier and more pythonic.
+* This code is entirely optional and users can still call the low-level
+  C-equivalents directly.
+* Where possible, existing Python APIs are followed so that glibc_select and
+  glibc_selectors are drop-in replacements for the select and selectors modules
+  from Python's standard library.
 
 Functions
 =========
