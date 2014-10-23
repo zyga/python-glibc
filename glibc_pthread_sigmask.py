@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 :mod:`glibcpthread_sigmask` -- python wrapper around pthread_sigmask
-=========================================================================
+====================================================================
 
 .. warning::
     ``pthread_sigmask(2)`` operates on the mask of flags associated with the
