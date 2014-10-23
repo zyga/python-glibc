@@ -75,6 +75,7 @@ __version__ = '0.5'
 
 # Load the standard C library on this system
 _glibc = ctypes.CDLL(ctypes.util.find_library('c'), use_errno=True)
+_pthread = ctypes.CDLL(ctypes.util.find_library('pthread'))
 
 
 class LazyModule(types.ModuleType):
@@ -849,7 +850,10 @@ _glibc_functions = (
 
 def _glibc_func(name, restype, argtypes, doc,
                 error_result=None, errno_map=None):
-    func = getattr(_glibc, name)
+    if name.startswith('pthread_'):
+        func = getattr(_pthread, name)
+    else:
+        func = getattr(_glibc, name)
     _globals = {'ctypes': ctypes, 'glibc': _mod}
     func.argtypes = [
         eval(argtype, _globals) if isinstance(argtype, str) else argtype
@@ -857,7 +861,16 @@ def _glibc_func(name, restype, argtypes, doc,
     ]
     func.restype = (
         eval(restype, _globals) if isinstance(restype, str) else restype)
-    if errno_map is not None:
+    if errno_map is not None and error_result == 'pthread':
+        # Use a variant of error-code to errno translator that is specific
+        # to pthread_* family of functions that don't touch errno
+        def pthread_errcheck(result, func, arguments):
+            if result != 0:
+                raise OSError(result, errno_map.get(
+                    result, os.strerror(result)))
+            return result
+        func.errcheck = pthread_errcheck
+    elif errno_map is not None:
         # Use built-in error-code to errno translator
         def std_errcheck(result, func, arguments):
             if result == error_result:

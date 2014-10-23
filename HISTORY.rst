@@ -1,6 +1,7 @@
 0.6 (????-??-??)
 ================
 
+* Functions from the pthread library are now supported
 * Added functions: ``read(2)``
 * Added constants: ``NSIG``
 
