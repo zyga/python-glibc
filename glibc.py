@@ -576,6 +576,14 @@ _glibc_functions = (
                         " of the process's address space"),
          errno.EINVAL: "The value specified in ``how`` was invalid",
      }),
+    ('pthread_sigmask', c_int, [c_int, 'ctypes.POINTER(glibc.sigset_t)',
+                                'ctypes.POINTER(glibc.sigset_t)'],
+     """int pthread_sigmask(int how, const sigset_t *set, sigset_t *oldset);"""
+     'pthread', {
+         errno.EFAULT: ("The ``set`` or ``oldset`` arguments points outside"
+                        " of the process's address space"),
+         errno.EINVAL: "The value specified in ``how`` was invalid",
+     }),
     ('signalfd', c_int, [c_int, 'ctypes.POINTER(glibc.sigset_t)', c_int],
      """int signalfd(int fd, const sigset_t *mask, int flags);""",
      -1, {
