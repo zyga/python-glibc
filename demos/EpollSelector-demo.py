@@ -21,7 +21,7 @@ from glibc import (
     sigprocmask, signalfd, pipe2, dup3,
 )
 
-from glibc_selectors import EpollSelector, EVENT_READ, EVENT_WRITE
+from pyglibc.selectors import EpollSelector, EVENT_READ
 
 
 def main():

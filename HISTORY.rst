@@ -4,20 +4,22 @@
 * Functions from the pthread library are now supported
 * Added functions: ``read(2)``, ``pause(2)``
 * Added constants: ``NSIG``
-* Added new module :mod:`glibc_select` that contains a Python 2.7+ version of the
+* Added new module :mod:`pyglibc.select` that contains a Python 2.7+ version of the
   select.py from Python 3.4. This module contains a pure-python version of the
   ``epoll`` class. It may be used in place of the module from the standard
   library if additional features are desired in a cross-python-version portable
   manner.
-* Added new module :mod:`glibc_selectors` that contains a Python 2.7+ version of
-  the selectors.py from Python 3.4. As with glibc_select, it can be used in
-  place of the original.
-* Added new module :mod:`glibc_signalfd` that exposes ``signalfd(2)`` in a much
-  more pythonic way. Use signalfd as a file, as a context manager, inspect it
-  in pdb, all easily without having to browse through manual pages.
-* Added new module :mod:`glibc_pthread_sigmask` that exposes
+* Added new module :mod:`pyglibc.selectors` that contains a Python 2.7+ version
+  of the selectors.py from Python 3.4. As with pyglibc.select, it can be used
+  in place of the original.
+* Added new module :mod:`pyglibc._signalfd` that exposes ``signalfd(2)`` in a
+  much more pythonic way. Use signalfd as a file, as a context manager, inspect
+  it in pdb, all easily without having to browse through manual pages. It is
+  exposed as ``pyglibc.signalfd`` for easier importing.
+* Added new module :mod:`pyglibc._pthread_sigmask` that exposes
   ``pthread_sigmask(2)`` in a much more pythonic way, making it a perfect
-  companion for the ``signalfd()`` class.
+  companion for the ``signalfd()`` class. It is exposed as
+  ``pyglibc.pthread_sigmask`` for easier importing.
 
 0.5 (2014-10-22)
 ================

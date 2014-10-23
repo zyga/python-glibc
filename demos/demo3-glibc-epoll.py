@@ -12,8 +12,8 @@ from os import (fdopen, close, fork, execlp, read, waitid, WEXITSTATUS,
                 WUNTRACED, P_PID)
 from signal import SIGINT, SIGQUIT, SIGCHLD, SIGPIPE
 from sys import argv
-from glibc_select import epoll
 
+from pyglibc.select import epoll
 from glibc import (
     SIG_BLOCK, SIG_UNBLOCK, SFD_CLOEXEC, O_CLOEXEC, EPOLLIN,
     EPOLLOUT, EPOLLRDHUP, EPOLLPRI, EPOLLERR, EPOLLHUP, PIPE_BUF, CLD_EXITED,

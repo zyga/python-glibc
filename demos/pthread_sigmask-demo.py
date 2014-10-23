@@ -9,12 +9,12 @@ from argparse import ArgumentParser
 from signal import SIGINT
 from time import sleep
 
-from glibc_pthread_sigmask import pthread_sigmask
+from pyglibc import pthread_sigmask
 
 
 def main():
     parser = ArgumentParser()
-    parser.add_option(
+    parser.add_argument(
         '--setmask', action='store_true',
         help='use SIG_SETMASK instead of SIG_BLOCK/SIG_UNBLOCK')
     ns = parser.parse_args()

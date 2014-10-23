@@ -7,8 +7,8 @@ from __future__ import absolute_import
 
 from signal import SIGINT, SIGQUIT
 
-from glibc_signalfd import signalfd
-from glibc_pthread_sigmask import pthread_sigmask
+from pyglibc import signalfd
+from pyglibc import pthread_sigmask
 
 
 def main():

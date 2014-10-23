@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`glibc_selectors` -- python-glibc based version of PEP3156 selectors
-=========================================================================
+:mod:`pyglibc.selectors` -- pyglib-based version of PEP3156 selectors
+=====================================================================
 
 This module contains a re-implementation of the :mod:`selectors` module from
 Python's standard library as of Python 3.4. It is compatible with Python 2.7+
@@ -36,11 +36,11 @@ import abc
 import collections
 import sys
 
-import glibc_select as select
+from pyglibc import select
 if sys.version_info[0] == 2:
-    from _glibc_p2k import Interface
+    from pyglibc._p2k import Interface
 else:
-    from _glibc_p3k import Interface
+    from pyglibc._p3k import Interface
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '1.0'  # Let's claim this is complete and fix issues, if any

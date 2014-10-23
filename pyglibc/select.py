@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`glibc_select` -- python-glibc based pure-python select.py
-===============================================================
+:mod:`pyglibc.select` -- pyglibc-based pure-python select.py
+============================================================
 
 This module contains a re-implementation of the :mod:`select` module from
 Python's standard library as of Python 3.4. It is compatible with Python 2.7+

@@ -26,7 +26,7 @@ from glibc import (
     sigprocmask, signalfd, pipe2, dup3,
 )
 
-from glibc_select import epoll
+from pyglibc.select import epoll
 
 
 def main():

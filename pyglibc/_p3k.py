@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`_glibc_p2k` -- python 2/3 abstractions needed by python-glibc
-===================================================================
+:mod:`pyglibc._p2k` -- python 2/3 abstractions needed by pyglibc
+================================================================
 
 This module is considered a part of the private api of python-glibc. It may
 change in the future in an incompatible way.

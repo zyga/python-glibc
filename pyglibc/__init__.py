@@ -15,21 +15,24 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`_glibc_p2k` -- python 2/3 abstractions needed by python-glibc
-===================================================================
+:mod:`pyglibc` -- pythonic wrappers around glibc
+================================================
 
-This module is considered a part of the private api of python-glibc. It may
-change in the future in an incompatible way.
+This package builds upon the ``glibc`` module and provides high-level Pythonic
+APIs for some of the features of glibc. Where possible some of the wrappers are
+modeled after existing modules in the Python 3.4 standard libary so those can
+be a more universally available, glibc-specific, drop-in replacement.
 """
-import abc
+from pyglibc._signalfd import signalfd
+from pyglibc._pthread_sigmask import pthread_sigmask
+from pyglibc import select
+from pyglibc import selectors
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
-__version__ = '1.0'
-__all__ = ['Interface']
-
-
-class Interface(object):
-    """
-    An empty class with :class:`abc.ABCMeta` metaclass.
-    """
-    __metaclass__ = abc.ABCMeta
+__version__ = '0.5'
+__all__ = [
+    'pthread_sigmask',
+    'select',
+    'selectors',
+    'signalfd',
+]
