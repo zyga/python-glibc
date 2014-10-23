@@ -47,6 +47,7 @@ The following glibc functions are supported
 ``pipe(2)``                  Same as os.pipe
 ``pipe2(2)``
 ``prctl(2)``
+``read(2)``                  Unlike os.read, this one makes no copies
 ``sigaddset(3)``
 ``sigdelset(3)``
 ``sigemptyset(3)``

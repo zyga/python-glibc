@@ -41,13 +41,20 @@ from ctypes import c_uint64
 from ctypes import c_uint8
 from ctypes import c_ulong
 from ctypes import c_voidp
+from ctypes import c_size_t
+from ctypes import c_ssize_t
 from ctypes import get_errno
-from errno import EFAULT
-from errno import EINVAL
-from errno import EPERM
 from errno import EACCES
-from errno import EBUSY
+from errno import EAGAIN
 from errno import EBADF
+from errno import EBUSY
+from errno import EFAULT
+from errno import EINTR
+from errno import EINVAL
+from errno import EIO
+from errno import EISDIR
+from errno import EPERM
+from errno import EWOULDBLOCK
 import collections
 import ctypes
 import ctypes.util
@@ -707,6 +714,49 @@ _glibc_functions = (
                         " was equal to newfd."),
          errno.EMFILE: ("The process already has the maximum number of file"
                         " descriptors open and tried to open a new one."),
+     }),
+    ('read', c_ssize_t, [c_int, c_voidp, c_size_t],
+     """ssize_t read(int fd, void *buf, size_t count);""",
+     -1, {
+         EAGAIN: (
+             "The file descriptor fd refers to a file other than a socket"
+             " and has been marked nonblocking (O_NONBLOCK), and the read"
+             " would block."),
+         EWOULDBLOCK: '\n'.join([(
+             "The file descriptor fd refers to a file other than a socket"
+             " and has been marked nonblocking (O_NONBLOCK), and the read"
+             " would block."
+         ), (
+             "The file descriptor fd refers to a socket and has been marked"
+             " nonblocking (O_NONBLOCK), and the read would block."
+             " POSIX.1-2001 allows either EAGAIN or EWOULDBLOCK error to be"
+             " returned for this case, and does not require these constants"
+             " to have the same value, so a portable application should"
+             " check for both possibilities.")]),
+         EBADF: (
+             "fd is not a valid file descriptor or is not open for reading."),
+         EFAULT: (
+             "buf is outside your accessible address space."),
+         EINTR: (
+             "The call was interrupted by a signal before any data was read;"
+             " see signal(7)."),
+         EINVAL: '\n'.join([(
+             "fd is attached to an object which is unsuitable for reading;"
+             " or the file was opened with the O_DIRECT flag, and either the"
+             " address specified in buf, the value specified in count, or"
+             " the current file offset is not suitably aligned."
+         ), (
+             "fd was created via a call to timerfd_create(2) and the wrong"
+             " size buffer was given to read(); see timerfd_create(2) for"
+             " further information.")]),
+         EIO: (
+             "I/O error. This will happen for example when the process is in"
+             " a background process group, tries to read from its controlling"
+             " terminal, and either it is ignoring or blocking SIGTTIN or"
+             " its process group is orphaned. It may also occur when there is"
+             " a low-level I/O error while reading from a disk or tape."),
+         EISDIR: (
+             "fd refers to a directory.")
      }),
     ('close', c_int, [c_int],
      """int close(int fd);""",
