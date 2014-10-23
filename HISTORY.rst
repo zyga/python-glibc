@@ -9,6 +9,9 @@
   ``epoll`` class. It may be used in place of the module from the standard
   library if additional features are desired in a cross-python-version portable
   manner.
+* Added new module :mod:`glibc_selectors` that contains a Python 2.7+ version of
+  the selectors.py from Python 3.4. As with glibc_select, it can be used in
+  place of the original.
 
 0.5 (2014-10-22)
 ================

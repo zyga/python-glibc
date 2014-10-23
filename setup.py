@@ -36,6 +36,7 @@ setup(
         'glibc_select',
         '_glibc_p2k',
         '_glibc_p3k',
+        'glibc_selectors',
     ],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",
