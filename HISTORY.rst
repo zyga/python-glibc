@@ -2,6 +2,7 @@
 ================
 
 * Added functions: ``read(2)``
+* Added constants: ``NSIG``
 
 0.5 (2014-10-22)
 ================

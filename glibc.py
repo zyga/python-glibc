@@ -387,6 +387,7 @@ _glibc_constantinfo = collections.namedtuple(
 
 # Non-lazily define all supported glibc constants
 _glibc_constants = (
+    ('NSIG',            c_int, 65, ('#include <signal.h>',)),
     ('SIG_BLOCK',       c_int, 0, ('#include <signal.h>',)),
     ('SIG_UNBLOCK',     c_int, 1, ('#include <signal.h>',)),
     ('SIG_SETMASK',     c_int, 2, ('#include <signal.h>',)),
