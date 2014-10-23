@@ -853,6 +853,12 @@ _glibc_functions = (
      """int timerfd_gettime(int fd, struct itimerspec *curr_value);""",
      -1, {
      }),
+    ('pause', c_int, [],
+     """int pause();""", -1, {
+         EINTR: (
+             "a signal was caught and the signal-catching function returned."
+         )
+     }),
 )
 
 

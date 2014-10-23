@@ -44,6 +44,7 @@ The following glibc functions are supported
 ``epoll_ctl(2)``             Similar to select.epoll.{register,unregister,modify}
 ``epoll_pwait(2)``
 ``epoll_wait(2)``            Similar to select.epoll.poll()
+``pause(2)``
 ``pipe(2)``                  Same as os.pipe
 ``pipe2(2)``
 ``prctl(2)``

@@ -2,7 +2,7 @@
 ================
 
 * Functions from the pthread library are now supported
-* Added functions: ``read(2)``
+* Added functions: ``read(2)``, ``pause(2)``
 * Added constants: ``NSIG``
 * Added new module :mod:`glibc_select` that contains a Python 2.7+ version of the
   select.py from Python 3.4. This module contains a pure-python version of the
