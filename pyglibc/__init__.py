@@ -23,14 +23,17 @@ APIs for some of the features of glibc. Where possible some of the wrappers are
 modeled after existing modules in the Python 3.4 standard libary so those can
 be a more universally available, glibc-specific, drop-in replacement.
 """
-from pyglibc._signalfd import signalfd
-from pyglibc._pthread_sigmask import pthread_sigmask
 from pyglibc import select
 from pyglibc import selectors
+from pyglibc._pipe import pipe, pipe2
+from pyglibc._pthread_sigmask import pthread_sigmask
+from pyglibc._signalfd import signalfd
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '0.5'
 __all__ = [
+    'pipe',
+    'pipe2',
     'pthread_sigmask',
     'select',
     'selectors',

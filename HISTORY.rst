@@ -20,6 +20,8 @@
   ``pthread_sigmask(2)`` in a much more pythonic way, making it a perfect
   companion for the ``signalfd()`` class. It is exposed as
   ``pyglibc.pthread_sigmask`` for easier importing.
+* Added new module :mod:`pyglibc._pipe` that expoes ``pipe2(2)`` in the same
+  way as Python 3.4 does via the ``os.pipe()`` and ``os.pipe2()`` functions.
 
 0.5 (2014-10-22)
 ================

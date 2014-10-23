@@ -29,8 +29,8 @@ Features
   constant, size and offset of each structure / union field and the size of the
   whole structure / union.
 * Adds high-level abstractions on top of raw functions (pyglibc.select,
-  pyglibc.signalfd, pyglibc.selectors, pyglibc.pthread_sigmask) so that using
-  them is easier and more pythonic.
+  pyglibc.signalfd, pyglibc.selectors, pyglibc.pthread_sigmask, pyglibc.pipe)
+  so that using them is easier and more pythonic.
 * This code is entirely optional and users can still call the low-level
   C-equivalents directly.
 * Where possible, existing Python APIs are followed so that glibc_select and
