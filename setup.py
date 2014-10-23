@@ -37,6 +37,7 @@ setup(
         '_glibc_p2k',
         '_glibc_p3k',
         'glibc_selectors',
+        'glibc_signalfd',
     ],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",

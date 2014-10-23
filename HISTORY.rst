@@ -12,6 +12,9 @@
 * Added new module :mod:`glibc_selectors` that contains a Python 2.7+ version of
   the selectors.py from Python 3.4. As with glibc_select, it can be used in
   place of the original.
+* Added new module :mod:`glibc_signalfd` that exposes ``signalfd(2)`` in a much
+  more pythonic way. Use signalfd as a file, as a context manager, inspect it
+  in pdb, all easily without having to browse through manual pages.
 
 0.5 (2014-10-22)
 ================
