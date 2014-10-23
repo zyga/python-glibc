@@ -7,70 +7,68 @@ level mode
 from __future__ import print_function
 from __future__ import absolute_import
 
-from ctypes import c_int, byref
-from os import (fdopen, close, fork, execlp, read, waitid, WEXITSTATUS,
+from os import (close, fork, execlp, read, waitid, WEXITSTATUS,
                 WIFSIGNALED, WCOREDUMP, WNOHANG, WCONTINUED, WEXITED, WSTOPPED,
                 WUNTRACED, P_PID)
 from signal import SIGINT, SIGQUIT, SIGCHLD, SIGPIPE
 from sys import argv
 
 from glibc import (
-    SIG_BLOCK, SIG_UNBLOCK, SFD_CLOEXEC, SFD_NONBLOCK, O_CLOEXEC, O_NONBLOCK,
-    PIPE_BUF, CLD_EXITED, CLD_KILLED, CLD_DUMPED, CLD_STOPPED, CLD_TRAPPED,
-    CLD_CONTINUED, sigset_t, signalfd_siginfo, sigemptyset, sigaddset,
-    sigprocmask, signalfd, pipe2, dup3,
+    SFD_CLOEXEC, SFD_NONBLOCK, O_CLOEXEC, O_NONBLOCK, PIPE_BUF, CLD_EXITED,
+    CLD_KILLED, CLD_DUMPED, CLD_STOPPED, CLD_TRAPPED, CLD_CONTINUED, dup3,
 )
 
+from contextlib import ExitStack
+
+from pyglibc import pipe2
+from pyglibc import signalfd
+from pyglibc import pthread_sigmask
 from pyglibc.selectors import EpollSelector, EVENT_READ
 
 
 def main():
-    # Block signals so that they aren't handled
-    # according to their default dispositions
-    mask = sigset_t()
-    fdsi = signalfd_siginfo()
-    sigemptyset(mask)
-    # sigaddset(mask, SIGINT)
-    # sigaddset(mask, SIGQUIT)
-    sigaddset(mask, SIGCHLD)
-    # sigaddset(mask, SIGPIPE)
-    print("Blocking signals")
-    sigprocmask(SIG_BLOCK, mask, None)
-    # Get a signalfd descriptor
-    sfd = signalfd(-1, mask, SFD_CLOEXEC | SFD_NONBLOCK)
-    print("Got signalfd", sfd)
-    es = EpollSelector()
-    print("Adding signalfd fd {} to epoll".format(sfd))
-    es.register(sfd, EVENT_READ, 'signalfd(2)')
-    # Get two pair of pipes, one for stdout and one for stderr
-    stdout_pair = (c_int * 2)()
-    pipe2(byref(stdout_pair), O_CLOEXEC | O_NONBLOCK)
-    print("Got stdout pipe pair", stdout_pair[0], stdout_pair[1])
-    print("Adding pipe fd {} to epoll".format(stdout_pair[0]))
-    es.register(stdout_pair[0], EVENT_READ, 'stdout')
-    stderr_pair = (c_int * 2)()
-    pipe2(byref(stderr_pair), O_CLOEXEC | O_NONBLOCK)
-    print("Got stderr pipe pair", stderr_pair[0], stderr_pair[1])
-    print("Adding pipe fd {} to epoll".format(stdout_pair[0]))
-    es.register(stderr_pair[0], EVENT_READ, 'stderr')
-    prog = argv[1:]
-    if not prog:
-        prog = ['echo', 'usage: demo.py PROG [ARGS]']
-    print("Going to start program:", prog)
-    # Fork :-)
-    pid = fork()
-    if pid == 0:  # Child.
-        # NOTE: we are not closing any of the pipe ends. Why? Because they are
-        # all O_CLOEXEC and will thus not live across the execlp call down
-        # below.
-        dup3(stdout_pair[1], 1, 0)
-        dup3(stderr_pair[1], 2, 0)
-        execlp(prog[0], *prog)
-        return -1
-    else:
-        close(stdout_pair[1])
-        close(stderr_pair[1])
-    with fdopen(sfd, 'rb', 0) as sfd_stream:
+    with ExitStack() as stack:
+        # Block signals so that they aren't handled according to their default
+        # dispositions until after this block is terminated, or, in our case,
+        # never since we also use signalfd to collect them.
+        print("Blocking signals...")
+        stack.enter_context(pthread_sigmask([SIGCHLD]))
+        print("Setting up epoll...")
+        es = EpollSelector()
+        print("Got", es)
+        print("Setting up signalfd...")
+        sfd_obj = stack.enter_context(
+            signalfd([SIGCHLD], SFD_CLOEXEC | SFD_NONBLOCK))
+        print("Got", sfd_obj)
+        print("Adding signalfd epoll...")
+        es.register(sfd_obj, EVENT_READ, 'signalfd(2)')
+        print("Setting up stdout pipe...")
+        stdout_pair = pipe2(O_CLOEXEC | O_NONBLOCK)
+        print("Got", stdout_pair)
+        print("Adding stdout pipe to epoll...")
+        es.register(stdout_pair[0], EVENT_READ, 'stdout')
+        print("Getting stderr pipe...")
+        stderr_pair = pipe2(O_CLOEXEC | O_NONBLOCK)
+        print("Got", stderr_pair)
+        print("Adding stderr pipe to epoll...")
+        es.register(stderr_pair[0], EVENT_READ, 'stderr')
+        prog = argv[1:]
+        if not prog:
+            prog = ['echo', 'usage: demo.py PROG [ARGS]']
+        print("Going to start program:", prog)
+        # Fork :-)
+        pid = fork()
+        if pid == 0:  # Child.
+            # NOTE: we are not closing any of the pipe ends. Why? Because they
+            # are all O_CLOEXEC and will thus not live across the execlp call
+            # down below.
+            dup3(stdout_pair[1], 1, 0)
+            dup3(stderr_pair[1], 2, 0)
+            execlp(prog[0], *prog)
+            return -1
+        else:
+            close(stdout_pair[1])
+            close(stderr_pair[1])
         waiting_for = set(['stdout', 'stderr', 'proc'])
         while waiting_for:
             print("Waiting for events...", ' '.join(waiting_for), flush=True)
@@ -81,12 +79,15 @@ def main():
                 print("[event]")
                 print(" key: {!r}".format(key))
                 print(" events: {!r}".format(events))
-                if key.fd == sfd:
+                if key.fd == sfd_obj.fileno():
                     print("signalfd() descriptor ready")
                     if events & EVENT_READ:
                         print("Reading data from signalfd()...")
                         # Read the next delivered signal
-                        sfd_stream.readinto(fdsi)
+                        try:
+                            fdsi = sfd_obj.read()[0]
+                        except IndexError:
+                            continue
                         if fdsi.ssi_signo == SIGINT:
                             print("Got SIGINT")
                         elif fdsi.ssi_signo == SIGQUIT:
@@ -158,7 +159,7 @@ def main():
                         data = read(key.fd, PIPE_BUF)
                         print("Read {} bytes from {} pipe".format(
                             len(data), key.data))
-                        print(data)
+                        print("Data:", data)
                         if len(data) == 0:
                             print("Removing {} pipe from EpollSelector".format(
                                 key.data))
@@ -172,11 +173,6 @@ def main():
                     # this yet.
                     print("Unexpected descriptor ready:", key.fd)
     assert not waiting_for
-    print("Closing", es)
-    es.close()
-    print("Unblocking signals")
-    sigprocmask(SIG_UNBLOCK, mask, None)
-    print("Exiting normally")
 
 
 if __name__ == '__main__':
