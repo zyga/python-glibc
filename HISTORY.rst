@@ -15,6 +15,9 @@
 * Added new module :mod:`glibc_signalfd` that exposes ``signalfd(2)`` in a much
   more pythonic way. Use signalfd as a file, as a context manager, inspect it
   in pdb, all easily without having to browse through manual pages.
+* Added new module :mod:`glibc_pthread_sigmask` that exposes
+  ``pthread_sigmask(2)`` in a much more pythonic way, making it a perfect
+  companion for the ``signalfd()`` class.
 
 0.5 (2014-10-22)
 ================

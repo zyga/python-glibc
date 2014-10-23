@@ -38,6 +38,7 @@ setup(
         '_glibc_p3k',
         'glibc_selectors',
         'glibc_signalfd',
+        'glibc_pthread_sigmask',
     ],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",
