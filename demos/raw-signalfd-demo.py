@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 signalfd(2) demo, see the manual page of signalfd(2) for the equivalent C-code
 """
