@@ -31,7 +31,10 @@ setup(
     name="glibc",
     version="0.5",
     url="https://github.com/zyga/python-glibc/",
-    py_modules=['glibc'],
+    py_modules=[
+        'glibc',
+        'glibc_select',
+    ],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",
     license="LGPLv3",

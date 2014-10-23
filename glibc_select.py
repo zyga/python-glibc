@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # Copyright (c) 2014 Canonical Ltd.
 #
 # Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
@@ -16,16 +15,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-glibc_select -- python-glibc based pure-python select.py
-========================================================
+:mod:`glibc_select` -- python-glibc based pure-python select.py
+===============================================================
 
 This module contains a re-implementation of the :mod:`select` module from
-python's standard library as of Python 3.4. It is compatible with Python 2.7+
+Python's standard library as of Python 3.4. It is compatible with Python 2.7+
 (including Python 3) and supports all of the features (including setting
 close-on-exec flags).
 
+This module is considered stable public API. It will maintain backwards
+compatibility for the foreseeable future. Any changes will be made to conform
+more strictly with the original specification and the reference implementation
+present in the python standard library.
+
 Only features in scope for Linux are implemented. Obsolete select and poll
-interfaces are not implemented.
+interfaces are not implemented. The API is deliberately kept identical to the
+version from stdlib so that code can be ported from one to the other by mere
+import swap.
 """
 from __future__ import absolute_import
 
@@ -59,11 +65,13 @@ from glibc import epoll_ctl
 from glibc import epoll_event
 from glibc import epoll_wait
 
+__author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
+__version__ = '1.0'  # Let's claim this is complete and fix issues, if any
 __all__ = ['epoll', 'EPOLL_CLOEXEC', 'EPOLLIN', 'EPOLLOUT', 'EPOLLPRI',
            'EPOLLERR', 'EPOLLHUP', 'EPOLLET', 'EPOLLONESHOT', 'EPOLLRDNORM',
            'EPOLLRDBAND', 'EPOLLWRNORM', 'EPOLLWRBAND', 'EPOLLMSG']
 
-# Extra features not present in Python 3.4
+# NOTE: Extra features not present in Python 3.4
 __all__ += ['EPOLLRDHUP']
 
 
@@ -76,7 +84,6 @@ class epoll(object):
     Pure-python reimplementation of  :class:`select.epoll` from Python 3.4
     compatible with Python 2.7+.
     """
-
     # Somewhat inefficient lock acquired on each call to epoll.close() to
     # ensure that we match semantics from python stdlib where close can be
     # called concurrently.
@@ -107,7 +114,7 @@ class epoll(object):
             _err_closed()
         return self
 
-    def __exit__(self):
+    def __exit__(self, *args):
         """
         Exit a context manager
 
@@ -120,7 +127,7 @@ class epoll(object):
         Close the internal epoll file descriptor if it isn't closed
 
         :raises OSError:
-            If the underlying ``epoll_ctl(2)`` fails. The error message matches
+            If the underlying ``close(2)`` fails. The error message matches
             those found in the manual page.
         """
         with self._close_lock:
