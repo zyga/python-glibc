@@ -34,6 +34,8 @@ setup(
     py_modules=[
         'glibc',
         'glibc_select',
+        '_glibc_p2k',
+        '_glibc_p3k',
     ],
     author="Zygmunt Krynicki",
     author_email="zygmunt.krynicki@canonical.com",
