@@ -24,6 +24,9 @@
   ``pyglibc.pthread_sigmask`` for easier importing.
 * Added new module :mod:`pyglibc._pipe` that expoes ``pipe2(2)`` in the same
   way as Python 3.4 does via the ``os.pipe()`` and ``os.pipe2()`` functions.
+* Added new module :mod:`pyglibc._subreaper` that adds pythonic API to
+  ``prctl(PR_{GET,SET}_CHILD_SUBREAPER, ...)``. This module exposes a single
+  instance called ``subreaper``.
 
 0.5 (2014-10-22)
 ================

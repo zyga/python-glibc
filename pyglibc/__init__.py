@@ -28,6 +28,7 @@ from pyglibc import selectors
 from pyglibc._pipe import pipe, pipe2
 from pyglibc._pthread_sigmask import pthread_sigmask
 from pyglibc._signalfd import signalfd
+from pyglibc._subreaper import subreaper
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '0.5'
