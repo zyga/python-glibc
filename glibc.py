@@ -53,6 +53,10 @@ from errno import EINTR
 from errno import EINVAL
 from errno import EIO
 from errno import EISDIR
+from errno import EMFILE
+from errno import ENFILE
+from errno import ENODEV
+from errno import ENOMEM
 from errno import EPERM
 from errno import EWOULDBLOCK
 import collections
@@ -199,6 +203,7 @@ _glibc_aliasinfo = collections.namedtuple(
 _glibc_aliases = [
     ('time_t', 'time_t', c_long, ('#include <time.h>',)),
     ('suseconds_t', 'suseconds_t', c_long, ('#include <sys/types.h>',)),
+    ('eventfd_t', 'eventfd_t', c_uint64, ('#include <sys/eventfd.h>',)),
 ]
 
 _glibc_aliases = [_glibc_aliasinfo(*i) for i in _glibc_aliases]
@@ -529,6 +534,9 @@ _glibc_constants = (
         '#include <sys/timerfd.h>',)),
     ('TFD_NONBLOCK',                c_int, 0o0004000, (
         '#include <sys/timerfd.h>',)),
+    ('EFD_CLOEXEC',     c_int, 0o2000000,   ('#include <sys/eventfd.h>',)),
+    ('EFD_NONBLOCK',    c_int, 0o0004000,   ('#include <sys/eventfd.h>',)),
+    ('EFD_SEMAPHORE',   c_int, 1,           ('#include <sys/eventfd.h>',)),
 )
 
 
@@ -859,6 +867,26 @@ _glibc_functions = (
              "a signal was caught and the signal-catching function returned."
          )
      }),
+    ('eventfd', c_int, [c_uint, c_int],
+     """int eventfd(unsigned int initval, int flags);""", -1, {
+         EINVAL: (
+             "An unsupported value was specified in flags."),
+         EMFILE: (
+             "The per-process limit on open file descriptors has been"
+             " reached."),
+         ENFILE: (
+             "The system-wide limit on the total number of open files has"
+             " been reached."),
+         ENODEV: (
+             "Could not mount (internal) anonymous inode device."),
+         ENOMEM: (
+             "There was insufficient memory to create a new eventfd file"
+             " descriptor."),
+     }),
+    ('eventfd_read', c_int, [c_uint, 'ctypes.POINTER(glibc.eventfd_t)'],
+     """int eventfd_read(int fd, eventfd_t *value);""", -1, {}),
+    ('eventfd_write', c_int, [c_uint, 'glibc.eventfd_t'],
+     """int eventfd_write(int fd, eventfd_t value);""", -1, {}),
 )
 
 
