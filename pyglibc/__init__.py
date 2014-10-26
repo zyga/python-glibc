@@ -23,6 +23,8 @@ APIs for some of the features of glibc. Where possible some of the wrappers are
 modeled after existing modules in the Python 3.4 standard libary so those can
 be a more universally available, glibc-specific, drop-in replacement.
 """
+from __future__ import absolute_import
+
 from pyglibc import select
 from pyglibc import selectors
 from pyglibc._pipe import pipe, pipe2
