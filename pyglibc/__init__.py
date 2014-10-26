@@ -41,4 +41,5 @@ __all__ = [
     'select',
     'selectors',
     'signalfd',
+    'subreaper',
 ]
