@@ -122,6 +122,7 @@ class signalfd(object):
         """
         return self._sfd < 0
 
+    @property
     def signals(self):
         """
         Get the set of monitored signals
@@ -130,8 +131,14 @@ class signalfd(object):
             A frozenset corresponding to each of the monitored signals
         :raises ValueError:
             If :meth:`closed()` is True
+
+        This property can be assigned to when it simply calls :meth:`update()`.
         """
         return self._signals
+
+    @signals.setter
+    def signals(self, signals):
+        self.update(signals)
 
     def fileno(self):
         """
