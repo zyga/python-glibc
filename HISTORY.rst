@@ -3,9 +3,14 @@
 
 * Functions from the pthread library are now supported
 * Added functions: ``read(2)``, ``pause(2)``, ``eventfd(2)``,
-  ``eventfd_read(2)`` and ``eventfd_write(2)``.
+  ``eventfd_read(2)``, ``eventfd_write(2)``, ``clock_getres(2)``,
+  ``clock_gettime(2)`` and ``clock_settime(2)``.
 * Added constants: ``NSIG``, ``EFD_CLOEXEC``, ``EFD_NONBLOCK``,
-  and ``EFD_SEMAPHORE``.
+  ``EFD_SEMAPHORE``, ``CLOCK_REALTIME``, ``CLOCK_MONOTONIC``,
+  ``CLOCK_PROCESS_CPUTIME_ID``, ``CLOCK_THREAD_CPUTIME_ID``,
+  ``CLOCK_MONOTONIC_RAW``, ``CLOCK_REALTIME_COARSE``,
+  ``CLOCK_MONOTONIC_COARSE``, ``CLOCK_BOOTTIME``, ``CLOCK_REALTIME_ALARM``,
+  ``CLOCK_BOOTTIME_ALARM``,
 * Added new module :mod:`pyglibc.select` that contains a Python 2.7+ version of the
   select.py from Python 3.4. This module contains a pure-python version of the
   ``epoll`` class. It may be used in place of the module from the standard

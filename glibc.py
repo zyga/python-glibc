@@ -204,6 +204,7 @@ _glibc_aliases = [
     ('time_t', 'time_t', c_long, ('#include <time.h>',)),
     ('suseconds_t', 'suseconds_t', c_long, ('#include <sys/types.h>',)),
     ('eventfd_t', 'eventfd_t', c_uint64, ('#include <sys/eventfd.h>',)),
+    ('clockid_t', 'clockid_t', c_int, ('#include <time.h>',)),
 ]
 
 _glibc_aliases = [_glibc_aliasinfo(*i) for i in _glibc_aliases]
@@ -537,6 +538,16 @@ _glibc_constants = (
     ('EFD_CLOEXEC',     c_int, 0o2000000,   ('#include <sys/eventfd.h>',)),
     ('EFD_NONBLOCK',    c_int, 0o0004000,   ('#include <sys/eventfd.h>',)),
     ('EFD_SEMAPHORE',   c_int, 1,           ('#include <sys/eventfd.h>',)),
+    ('CLOCK_REALTIME',              c_int,  0,  ('#include <time.h>',)),
+    ('CLOCK_MONOTONIC',             c_int,  1,  ('#include <time.h>',)),
+    ('CLOCK_PROCESS_CPUTIME_ID',    c_int,  2,  ('#include <time.h>',)),
+    ('CLOCK_THREAD_CPUTIME_ID',     c_int,  3,  ('#include <time.h>',)),
+    ('CLOCK_MONOTONIC_RAW',         c_int,  4,  ('#include <time.h>',)),
+    ('CLOCK_REALTIME_COARSE',       c_int,  5,  ('#include <time.h>',)),
+    ('CLOCK_MONOTONIC_COARSE',      c_int,  6,  ('#include <time.h>',)),
+    ('CLOCK_BOOTTIME',              c_int,  7,  ('#include <time.h>',)),
+    ('CLOCK_REALTIME_ALARM',        c_int,  8,  ('#include <time.h>',)),
+    ('CLOCK_BOOTTIME_ALARM',        c_int,  9,  ('#include <time.h>',)),
 )
 
 
@@ -887,6 +898,34 @@ _glibc_functions = (
      """int eventfd_read(int fd, eventfd_t *value);""", -1, {}),
     ('eventfd_write', c_int, [c_uint, 'glibc.eventfd_t'],
      """int eventfd_write(int fd, eventfd_t value);""", -1, {}),
+    ('clock_getres', c_int, ['glibc.clockid_t',
+                             'ctypes.POINTER(glibc.timespec)'],
+     """int clock_getres(clockid_t clk_id, struct timespec *res);""", -1, {
+         EFAULT: (
+             "res points outside the accessible address space."),
+         EINVAL: (
+             "The clk_id specified is not supported on this system."),
+     }),
+    ('clock_gettime', c_int, ['glibc.clockid_t',
+                              'ctypes.POINTER(glibc.timespec)'],
+     """int clock_gettime(clockid_t clk_id, struct timespec *tp);""", -1, {
+         EFAULT: (
+             "tp points outside the accessible address space."),
+         EINVAL: (
+             "The clk_id specified is not supported on this system."),
+     }),
+    ('clock_settime', c_int, ['glibc.clockid_t',
+                              'ctypes.POINTER(glibc.timespec)'],
+     """int clock_settime(clockid_t clk_id, const struct timespec *tp);""",
+     -1, {
+         EFAULT: (
+             "tp points outside the accessible address space."),
+         EINVAL: (
+             "The clk_id specified is not supported on this system."),
+         EPERM: (
+             "clock_settime() does not have permission to set the clock"
+             " indicated."),
+     }),
 )
 
 

@@ -45,6 +45,9 @@ The following glibc functions are supported
 ===========================  =================================
            Name                           Remarks
 ===========================  =================================
+``clock_getres(2)``
+``clock_gettime(2)``
+``clock_settime(2)``
 ``close(2)``                 Same as os.close()
 ``dup(2)``                   Same as os.dup()
 ``dup2(2)``                  Same as os.dup2()
