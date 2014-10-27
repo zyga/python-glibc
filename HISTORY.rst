@@ -32,6 +32,8 @@
 * Added new module :mod:`pyglibc._subreaper` that adds pythonic API to
   ``prctl(PR_{GET,SET}_CHILD_SUBREAPER, ...)``. This module exposes a single
   instance called ``subreaper``.
+* Added new partially implemented module :mod:`pyglibc.asyncio` that adds
+  :pep:`3156`-like APIs for doing asynchronous IO
 
 0.5 (2014-10-22)
 ================

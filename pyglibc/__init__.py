@@ -31,10 +31,12 @@ from pyglibc._pipe import pipe, pipe2
 from pyglibc._pthread_sigmask import pthread_sigmask
 from pyglibc._signalfd import signalfd
 from pyglibc._subreaper import subreaper
+from pyglibc import asyncio
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '0.5'
 __all__ = [
+    'asyncio',
     'pipe',
     'pipe2',
     'pthread_sigmask',
