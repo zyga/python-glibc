@@ -357,6 +357,15 @@ _glibc_types = [
 _glibc_types = [_glibc_typeinfo(*i) for i in _glibc_types]
 
 
+def _glibc_struct_repr(self):
+    return 'struct {} at {:#x}\n'.format(
+        self.__class__.__name__, id(self)
+    ) + '\n'.join(
+        '  {}: {!r}'.format(f_name, getattr(self, f_name))
+        for f_name, f_type in self._fields_
+    )
+
+
 def _glibc_type(doc, py_kind, py_name, c_name, c_packed, py_fields, c_macros):
     _globals = {'ctypes': ctypes, 'glibc': _mod}
     py_fields = tuple([
@@ -370,6 +379,7 @@ def _glibc_type(doc, py_kind, py_name, c_name, c_packed, py_fields, c_macros):
             '__doc__': doc,
             '_fields_': py_fields,
             '_pack_': c_packed,
+            '__repr__': _glibc_struct_repr,
         })
     elif py_kind == 'union':
         if c_packed:
