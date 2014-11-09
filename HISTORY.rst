@@ -1,4 +1,4 @@
-0.6 (????-??-??)
+0.6 (2014-11-09)
 ================
 
 * Functions from the pthread library are now supported
