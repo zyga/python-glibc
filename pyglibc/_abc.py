@@ -1,6 +1,6 @@
-# Copyright 2014 Canonical Ltd.
-# Written by:
-#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+# Copyright (c) 2014 Canonical Ltd.
+#
+# Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
