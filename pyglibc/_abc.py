@@ -13,16 +13,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+:mod:`pyglibc._abc` -- an abc.ABCMeta derived base class
+========================================================
+
+This module provides the ``Interface`` class which is using the built-in
+abc.ABCMeta metaclass. The general idea is to abstract away the differences in
+python 2 and python 3 metaclass declaration syntax.
+"""
 from __future__ import absolute_import
 
+import abc
 import sys
-
-if sys.version_info[0] == 2:
-    from pyglibc._p2k import Interface
-else:
-    from pyglibc._p3k import Interface
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __all__ = [
     'Interface',
 ]
+
+if sys.version_info[0] == 2:
+    Interface = type("Interface", (object,), {
+        "__doc__": "An empty class with :class:`abc.ABCMeta` metaclass.",
+        "__metaclass__": abc.ABCMeta,
+    })
+else:
+    Interface = abc.ABCMeta("Interface", (), {
+        "__doc__": "An empty class with :class:`abc.ABCMeta` metaclass.",
+    })

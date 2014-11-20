@@ -37,10 +37,7 @@ import collections
 import sys
 
 from pyglibc import select
-if sys.version_info[0] == 2:
-    from pyglibc._p2k import Interface
-else:
-    from pyglibc._p3k import Interface
+from pyglibc._abc import Interface
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '1.0'  # Let's claim this is complete and fix issues, if any
