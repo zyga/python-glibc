@@ -1,3 +1,9 @@
+0.6.1 (2014-11-20)
+==================
+
+* Small change to internal APIs (no need to upgrade or there are no public API
+  changes).
+
 0.6 (2014-11-09)
 ================
 

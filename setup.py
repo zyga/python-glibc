@@ -30,7 +30,7 @@ history = open(os.path.join(base_dir, 'HISTORY.rst'), 'rt').read()
 
 setup(
     name="glibc",
-    version="0.6",
+    version="0.6.1",
     url="https://github.com/zyga/python-glibc/",
     packages=['pyglibc'],
     py_modules=['glibc'],
