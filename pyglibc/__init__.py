@@ -33,7 +33,7 @@ from pyglibc._signalfd import signalfd
 from pyglibc._subreaper import subreaper
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
-__version__ = '0.6'
+__version__ = '0.6.1'
 __all__ = [
     'pipe',
     'pipe2',
