@@ -1,3 +1,8 @@
+0.7   (unreleased)
+==================
+
+* Added constants ``F_SETPIPE_SZ`` and ``F_SETPIPE_SZ`` (for ``fcntl(2)``)
+
 0.6.1 (2014-11-20)
 ==================
 
