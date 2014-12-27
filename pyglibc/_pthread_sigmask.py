@@ -19,7 +19,7 @@
 ========================================================================
 
 .. warning::
-    ``pthread_sigmask(2)`` operates on the mask of flags associated with the
+    ``pthread_sigmask(3)`` operates on the mask of flags associated with the
     calling thread. Therefore there are no thread safety considerations as the
     whole object is inherently unsafe (or thread-specific).
 """
@@ -27,9 +27,10 @@ from __future__ import absolute_import
 
 from glibc import (
     NSIG, SIG_BLOCK, SIG_UNBLOCK, SIG_SETMASK, sigset_t, sigemptyset,
-    sigaddset, sigismember, pthread_sigmask as _pthread_sigmask)
+    sigaddset, sigismember, pthread_sigmask as _pthread_sigmask,
+    sigprocmask as _sigprocmask)
 
-__all__ = ['pthread_sigmask']
+__all__ = ['pthread_sigmask', 'sigprocmask']
 
 
 class _sigxxxmask_base(object):
@@ -266,3 +267,13 @@ class pthread_sigmask(_sigxxxmask_base):
     @classmethod
     def _do_mask(cls, how, set, oldset):
         return _pthread_sigmask(how, set, oldset)
+
+
+class sigprocmask(_sigxxxmask_base):
+    """
+    Pythonic wrapper around the ``sigprocmask(2)``
+    """
+
+    @classmethod
+    def _do_mask(cls, how, set, oldset):
+        return _sigprocmask(how, set, oldset)

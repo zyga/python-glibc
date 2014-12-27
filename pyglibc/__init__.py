@@ -29,6 +29,7 @@ from pyglibc import select
 from pyglibc import selectors
 from pyglibc._pipe import pipe, pipe2
 from pyglibc._pthread_sigmask import pthread_sigmask
+from pyglibc._pthread_sigmask import sigprocmask
 from pyglibc._signalfd import signalfd
 from pyglibc._subreaper import subreaper
 
@@ -41,5 +42,6 @@ __all__ = [
     'select',
     'selectors',
     'signalfd',
+    'sigprocmask',
     'subreaper',
 ]

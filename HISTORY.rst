@@ -2,6 +2,8 @@
 ==================
 
 * Added constants ``F_SETPIPE_SZ`` and ``F_SETPIPE_SZ`` (for ``fcntl(2)``)
+* Added high-level wrapper for ``pthread_sigmask`` (now sharing code with
+  ``sigprocmask`` wrapper)
 
 0.6.1 (2014-11-20)
 ==================
