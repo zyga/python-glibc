@@ -32,16 +32,20 @@ from glibc import (
 __all__ = ['pthread_sigmask']
 
 
-class pthread_sigmask(object):
+class _sigxxxmask_base(object):
     """
-    Pythonic wrapper around the ``pthread_sigmask(2)``
+    Pythonic wrapper around ``sigprocmask(2)`` and ``pthread_sigmask(3)``
+
+    This base class is defined to share the bulk of the code between
+    thread and process-wide version of the mask class. The actual
+    difference is in the implementation of :meth:`_do_mask()`
     """
 
     __slots__ = ('_signals', '_setmask', '_mask', '_old_mask', '_is_active')
 
     def __init__(self, signals=None, setmask=False):
         """
-        Initialize a new pthread_sigmask object.
+        Initialize a new mask object.
 
         :param signals:
             List of signals to block
@@ -51,8 +55,8 @@ class pthread_sigmask(object):
             and :meth:`unblock()`.
 
         .. note::
-            ``pthread_sigmask(2)`` is not called until :meth:`block()` is
-            called.
+            The masking function (``sigprocmask(2)`` or ``pthread_sigmask(3)``)
+            is not called until :meth:`block()` is called.
         """
         if signals is None:
             self._signals = frozenset()
@@ -67,8 +71,8 @@ class pthread_sigmask(object):
             sigaddset(self._mask, signal)
 
     def __repr__(self):
-        return "<pthread_sigmask signals:{} mode:{} active:{}>".format(
-            self._signals,
+        return "<{} signals:{} mode:{} active:{}>".format(
+            self.__class__.__name__, self._signals,
             "SIG_SETMASK" if self._setmask else "SIG_BLOCK",
             "yes" if self.is_active else "no")
 
@@ -108,7 +112,7 @@ class pthread_sigmask(object):
         associated set of blocked signals
 
         :returns:
-            The frozenset of signals associated with this pthread_sigmask.
+            The frozenset of signals associated with this mask object.
 
         .. note::
             Whether the signals returned by this method are currently blocked
@@ -137,7 +141,7 @@ class pthread_sigmask(object):
                 # NOTE: we're not updating self._old_mask here. This way
                 # unblock will trully restore everything despite modifications
                 # to signals that happened after the call to block()
-                _pthread_sigmask(SIG_SETMASK, self._mask, None)
+                self._do_mask(SIG_SETMASK, self._mask, None)
             else:
                 # in the non-setmask mode, let's just apply the delta
                 delta_mask = sigset_t()
@@ -147,20 +151,21 @@ class pthread_sigmask(object):
                     sigemptyset(delta_mask)
                     for signal in added_signals:
                         sigaddset(delta_mask, signal)
-                        _pthread_sigmask(SIG_BLOCK, delta_mask, None)
+                        self._do_mask(SIG_BLOCK, delta_mask, None)
                 # Let's unblock signals next
                 removed_signals = self._signals - new_signals
                 if removed_signals:
                     sigemptyset(delta_mask)
                     for signal in removed_signals:
                         sigaddset(delta_mask, signal)
-                        _pthread_sigmask(SIG_UNBLOCK, delta_mask, None)
+                        self._do_mask(SIG_UNBLOCK, delta_mask, None)
         # Reset signals to the new value
         self._signals = new_signals
 
     def block(self):
         """
-        Use ``pthread_sigmask(2)`` to block signals.
+        Use the masking function (``sigprocmask(2)`` or ``pthread_sigmask(3)``)
+        to block signals.
 
         This method uses either ``SIG_SETMASK`` or ``SIG_BLOCK``, depending on
         how the object was constructed. After this method is called, the
@@ -175,14 +180,15 @@ class pthread_sigmask(object):
         if self._setmask:
             self._old_mask = sigset_t()
             sigemptyset(self._old_mask)
-            _pthread_sigmask(SIG_SETMASK, self._mask, self._old_mask)
+            self._do_mask(SIG_SETMASK, self._mask, self._old_mask)
         else:
-            _pthread_sigmask(SIG_BLOCK, self._mask, None)
+            self._do_mask(SIG_BLOCK, self._mask, None)
         self._is_active = True
 
     def unblock(self):
         """
-        Use ``pthread_sigmask(2)`` to unblock signals.
+        Use the masking function (``sigprocmask(2)`` or ``pthread_sigmask(3)``)
+        to unblock signals.
 
         :raises ValueError:
             If the old mask is not obtained yet. This only happens in when
@@ -207,19 +213,20 @@ class pthread_sigmask(object):
         if self._setmask:
             if self._old_mask is None:
                 raise ValueError("block() wasn't called yet!")
-            _pthread_sigmask(SIG_SETMASK, self._old_mask, None)
+            self._do_mask(SIG_SETMASK, self._old_mask, None)
             self._old_mask = None
         else:
-            _pthread_sigmask(SIG_UNBLOCK, self._mask, None)
+            self._do_mask(SIG_UNBLOCK, self._mask, None)
         self._is_active = False
 
     @classmethod
     def get(cls):
         """
-        Use ``pthread_sigmask(2)`` to obtain the mask of blocked signals
+        Use the masking function (``sigprocmask(2)`` or ``pthread_sigmask(3)``)
+        to obtain the mask of blocked signals
 
         :returns:
-            A fresh :class:`pthread_sigmask` object.
+            A fresh :class:`sigprocmask` object.
 
         The returned object behaves as it was constructed with the list of
         currently blocked signals, ``setmask=False`` and as if the
@@ -231,7 +238,7 @@ class pthread_sigmask(object):
         """
         mask = sigset_t()
         sigemptyset(mask)
-        _pthread_sigmask(0, None, mask)
+        cls._do_mask(0, None, mask)
         signals = []
         for sig_num in range(1, NSIG):
             if sigismember(mask, sig_num):
@@ -240,3 +247,22 @@ class pthread_sigmask(object):
         self._is_active = True
         self._old_mask = mask
         return self
+
+    @classmethod
+    def _do_mask(cls, how, set, oldset):
+        """
+        Internal method that calls ``sigprocmask(2) or ``pthread_sigmask(3)``,
+        depending on the subclass (:class:`pthread_sigmask` or
+        :class:`sigprocmask` respectively)
+        """
+        raise NotImplementedError
+
+
+class pthread_sigmask(_sigxxxmask_base):
+    """
+    Pythonic wrapper around the ``pthread_sigmask(3)``
+    """
+
+    @classmethod
+    def _do_mask(cls, how, set, oldset):
+        return _pthread_sigmask(how, set, oldset)
